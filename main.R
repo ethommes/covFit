@@ -1,0 +1,18 @@
+library(maps)
+library(dplyr)
+library(ggplot2)
+library(ggalt)
+library(totalcensus) # Revisit if we actually end up using this...
+library(readxl)
+library(writexl)
+# library(acs)
+library(tidyverse)
+# library(tigris)
+# library(sf)
+library(noncensus)
+library(usmap)
+library(lubridate)
+
+setwd("src")
+file.sources <- list.files(pattern="*.R$")
+sapply(file.sources, source)
