@@ -12,6 +12,8 @@ library(tidyverse)
 library(noncensus)
 library(usmap)
 library(lubridate)
+library(data.table)
+library(ggrepel)
 
 setwd("src")
 file.sources <- list.files(pattern="*.R$")
