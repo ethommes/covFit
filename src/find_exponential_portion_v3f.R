@@ -18,10 +18,11 @@ find_exponential_portion_v3f <- function(incidence_list,
                                      sigma_SEIR,
                                      gamma_SEIR, 
                                      plot_TF,
-                                     county,
-                                     state,
+                                     title,
+                                     # county,
+                                     # state,
                                      pathname) { 
-  title = paste(county,state)
+  # title = paste(county,state)
   # Aggregate by the specified number of days, i.e. if N_days_to_aggregate = 2,
   # then combine every 2 days:
   dates <- incidence_list$dates
@@ -196,6 +197,7 @@ find_exponential_portion_v3f <- function(incidence_list,
     # geom_line(data=post_exp_portion_fit_for_plot,aes(x=dates,y=fit),color="red") + 
     geom_point(data=incidence_aggr,aes(x=dates,y=cases*SF)) + 
     geom_point(data=exponential_portion,aes(x=dates,y=y*SF),color="red") + 
+    # ylim(1,2*max(incidence_aggr$cases*SF))
     annotate_textp(x=0.02,y=0.98,label=paste0(
       "Total cases up to ",latest_date,":\n",cases_total," (",round(cases_total*1e5/population,0)," per 100,000)\n \n",
       "Initial exponential phase:\n",
@@ -243,11 +245,12 @@ find_exponential_portion_v3f <- function(incidence_list,
   
   # write_output is set to F if population = 1 [may want to add other conditions...]
   if (!is.na(pathname)) {
-    filename <- paste0(county,"_",state,"_exponential_growth.png")
+    the_plot_linear <- the_plot + ylim(0,1.5*max(incidence_aggr$cases*SF))
+    filename <- paste0(title,"_exponential_growth.png")
     ggsave(path=pathname, filename = filename)
     
     the_plot_log <- the_plot + scale_y_log10()
-    filename <- paste0(county,"_",state,"_exponential_growth_LOG.png",sep="")
+    filename <- paste0(title,"_exponential_growth_LOG.png",sep="")
     ggsave(path=pathname, filename=filename)
   }
   

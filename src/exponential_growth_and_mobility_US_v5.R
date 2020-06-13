@@ -150,9 +150,9 @@ exponential_growth_and_mobility_US_v5 <- function(
                                                     sigma_SEIR,
                                                     gamma_SEIR,
                                                     plot_TF = plot_TF,
-                                                    # title = paste(df$counties[i], df$states[i]),
-                                                    county = df$counties[i],
-                                                    state = df$states[i],
+                                                    title = paste(df$counties[i], df$states[i]),
+                                                    # county = df$counties[i],
+                                                    # state = df$states[i],
                                                     pathname = pathname)
       df$onset_date[i] <- v_exp_portion$onset_date
       df$turnover_date[i] <- v_exp_portion$turnover_date

@@ -1,10 +1,13 @@
 
-modify_county_onset_turnover <- function(frame_to_modify, FIPS_to_modify, onset_date_OVERRIDE, turnover_date_OVERRIDE, inputs) {
+modify_county_onset_turnover <- function(frame_to_modify, state_abbr_to_modify, county_to_modify, onset_date_OVERRIDE, turnover_date_OVERRIDE, inputs) {
   with(inputs, {
   
+    browser()
+    # covid19_US_line <- covid19_US %>% subset(FIPS==FIPS_to_modify)
+    # covid19_deaths_US_line <- covid19_deaths_US %>% subset(FIPS==FIPS_to_modify)
     
-    covid19_US_line <- covid19_US %>% subset(FIPS==FIPS_to_modify)
-    covid19_deaths_US_line <- covid19_deaths_US %>% subset(FIPS==FIPS_to_modify)
+    covid19_US_line <- covid19_US %>% subset(counties==county_to_modify & state_abbr == state_abbr_to_modify)
+    covid19_deaths_US_line <- covid19_deaths_US %>% subset(counties==county_to_modify & state_abbr == state_abbr_to_modify)
     
     # Make 1-line override "table" to give us the overrides we want:
     fips <- covid19_US_line$FIPS

@@ -45,6 +45,7 @@ exponential_growth_and_mobility_US_state_level <- function(
   # set up (part of) master data frame:
   df <- data.frame(
     "states" = states,
+    "state_abbr" = setNames(state.abb, state.name)[states],
     "pop" = rep(NA,n_rows),
     "total_cases" = rep(NA,n_rows),
     "cases_per_100k" = rep(NA,n_rows),
@@ -140,8 +141,9 @@ exponential_growth_and_mobility_US_state_level <- function(
                                                     gamma_SEIR,
                                                     plot_TF = plot_TF,
                                                     # title = paste(df$counties[i], df$states[i]),
-                                                    county = "",
-                                                    state = state,
+                                                    title = state,
+                                                    # county = "",
+                                                    # state = state,
                                                     pathname = pathname)
       df$turnover_date[i] <- v_exp_portion$turnover_date
       df$rho[i]  <- v_exp_portion$rho
@@ -208,7 +210,7 @@ exponential_growth_and_mobility_US_state_level <- function(
         # geom_line(data=apple_mobi$df,aes(x=date,y=transit_roll, color = "transit (A)"),linetype = 2) +
         labs(title = paste0("Google mobility, ",df$states[i]), x= "date", y="percent baseline", color="Legend") +
         scale_color_manual(values=colors) +
-        ylim(0,150)
+        ylim(0,200)
       filename <- paste0(df$states[i],"_mobility.png")
       ggsave(path=pathname,filename = filename,width=6,height=4)
     }
