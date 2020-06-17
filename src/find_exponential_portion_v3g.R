@@ -3,8 +3,9 @@
 #   - outputs also onset date
 #   - allows selecting whether or not to plot current R 
 
-find_exponential_portion_v3f <- function(incidence_list,
+find_exponential_portion_v3g <- function(incidence_list,
                                          population,
+                                         CFR, # NA to not perform correction
                                      N_days_to_aggregate, 
                                      daily_case_threshold,
                                      cumu_case_threshold,
@@ -19,6 +20,7 @@ find_exponential_portion_v3f <- function(incidence_list,
                                      gamma_SEIR, 
                                      plot_TF,
                                      title,
+                                     CFR_text,
                                      # county,
                                      # state,
                                      pathname) { 
@@ -195,6 +197,29 @@ find_exponential_portion_v3f <- function(incidence_list,
   
   y_label <- paste("cases per ",N_days_to_aggregate,"days per 100,000 population")
   # SF <- 1
+  text_plot_1 <- paste0(
+    CFR_text,
+    "Total cases up to ",latest_date,":\n",cases_total," (",round(cases_total*1e5/population,0)," per 100,000)\n \n",
+    "Initial exponential phase:\n",
+    "   rho = ", round(slope,2),"\n",
+    "   doubling time = ",round(doubling_time,2)," days (negative value = halving time)\n",
+    "   R = ",round(R,2), "\n",
+    "   turnover date = ",turnover_date,"\n"
+  )
+   
+
+  text_plot_2 <- paste0(
+    "Post-turnover phase:\n",
+    "   rho = ", round(slope_post_exp,2),"\n",
+    "   doubling time = ",round(doubling_time_post_exp,2)," days\n",
+    "   R_post = ",round(R_post_exp,2),"\n",
+    "                 = ",round(R_post_exp/R,2)," R\n",
+    "                 = ",round(R_percent_reduction,2),"% reduction\n",
+    "\n Last ",window_for_current_R, " days:\n",
+    "   R = ",round(R_current,2),"\n",
+    "   doubling time = ",round(doubling_time_current,2)," days\n"
+  )
+  
   the_plot <- ggplot(data=exp_portion_fit_for_plot) + 
     geom_line(aes(x=dates,y=fit*SF),color="red") + 
     geom_ribbon(aes(x=dates,ymin=lwr*SF, ymax=upr*SF),fill="red",alpha=0.4) + 
@@ -202,24 +227,27 @@ find_exponential_portion_v3f <- function(incidence_list,
     geom_point(data=incidence_aggr,aes(x=dates,y=cases*SF)) + 
     geom_point(data=exponential_portion,aes(x=dates,y=y*SF),color="red") + 
     # ylim(1,2*max(incidence_aggr$cases*SF))
-    annotate_textp(x=0.02,y=0.98,label=paste0(
-      "Total cases up to ",latest_date,":\n",cases_total," (",round(cases_total*1e5/population,0)," per 100,000)\n \n",
-      "Initial exponential phase:\n",
-      "   rho = ", round(slope,2),"\n",
-      "   doubling time = ",round(doubling_time,2)," days (negative value = halving time)\n",
-      "   R = ",round(R,2), "\n",
-      "   turnover date = ",turnover_date,"\n",
-      "\nPost-turnover phase:\n",
-      "   rho = ", round(slope_post_exp,2),"\n",
-      "   doubling time = ",round(doubling_time_post_exp,2)," days\n",
-      "   R_post = ",round(R_post_exp,2),"\n",
-      "                 = ",round(R_post_exp/R,2)," R\n",
-      "                 = ",round(R_percent_reduction,2),"% reduction\n",
-      "\n Last ",window_for_current_R, " days:\n",
-      "   R = ",round(R_current,2),"\n",
-      "   doubling time = ",round(doubling_time_current,2)," days\n"), size=9) +
+    # annotate_textp(x=0.02,y=0.98, label=text_plot_1, size=9) +
+    # annotate_textp(x=0.02,y=0.98,label=paste0(
+    #   CFR_text,
+    #   "Total cases up to ",latest_date,":\n",cases_total," (",round(cases_total*1e5/population,0)," per 100,000)\n \n",
+    #   "Initial exponential phase:\n",
+    #   "   rho = ", round(slope,2),"\n",
+    #   "   doubling time = ",round(doubling_time,2)," days (negative value = halving time)\n",
+    #   "   R = ",round(R,2), "\n",
+    #   "   turnover date = ",turnover_date,"\n",
+    #   "\nPost-turnover phase:\n",
+    #   "   rho = ", round(slope_post_exp,2),"\n",
+    #   "   doubling time = ",round(doubling_time_post_exp,2)," days\n",
+    #   "   R_post = ",round(R_post_exp,2),"\n",
+    #   "                 = ",round(R_post_exp/R,2)," R\n",
+    #   "                 = ",round(R_percent_reduction,2),"% reduction\n",
+    #   "\n Last ",window_for_current_R, " days:\n",
+    #   "   R = ",round(R_current,2),"\n",
+    #   "   doubling time = ",round(doubling_time_current,2)," days\n"), size=9) +
   
-    labs(title = paste("Initial exponential growth, ",title,sep=""), x="date", y = y_label)
+    # labs(title = paste("Initial exponential growth, ",title,sep=""), x="date", y = y_label)
+    labs(x="date")
   
   
     
@@ -249,22 +277,34 @@ find_exponential_portion_v3f <- function(incidence_list,
   
   # write_output is set to F if population = 1 [may want to add other conditions...]
   if (!is.na(pathname)) {
-    the_plot_linear <- the_plot + ylim(0,1.5*max(incidence_aggr$cases*SF))
+    the_plot_linear <- the_plot + ylim(0,1.5*max(incidence_aggr$cases*SF)) +
+      theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.title.y = element_blank()) +
+      annotate_textp(x=0.02,y=0.98, label=text_plot_1, size=9)
     filename <- paste0(title,"_exponential_growth.png")
-    ggsave(path=pathname, filename = filename)
+    # ggsave(path=pathname, filename = filename)
     
-    the_plot_log <- the_plot + scale_y_log10()
+    the_plot_log <- the_plot + scale_y_log10() +
+      theme(axis.title.y = element_blank()) +
+      annotate_textp(x=0.02,y=0.98, label=text_plot_2, size=9)
     filename <- paste0(title,"_exponential_growth_LOG.png",sep="")
-    ggsave(path=pathname, filename=filename)
+    # ggsave(path=pathname, filename=filename)
   }
+  gA <- ggplotGrob(the_plot_linear)
+  gB <- ggplotGrob(the_plot_log)
+  grid.newpage()
+  # twopanel_plot <- grid.arrange(rbind(gA, gB),left = y_label, top=title)
+  twopanel_plot <- arrangeGrob(rbind(gA, gB),left = y_label, top=title)
   
-
   
+  
+  # twopanel_plot <- grid.arrange(the_plot_linear, the_plot_log,nrow=2)
+  filename <- paste0(title,"_exponential_fit.png")
+  # ggsave(path=pathname, filename=filename)
+  ggsave(path=pathname, filename=filename, twopanel_plot)
 
-
-  linear_plot <- ggplot(data=incidence_aggr,aes(x=dates,y=cases)) + 
-    geom_point() +
-    geom_line()
+  # linear_plot <- ggplot(data=incidence_aggr,aes(x=dates,y=cases)) + 
+  #   geom_point() +
+  #   geom_line()
   
 
 
@@ -278,7 +318,8 @@ find_exponential_portion_v3f <- function(incidence_list,
     # print(the_plot_TEST2)
     
   }
-  result_to_return <- list(
+  # result_to_return <- list(
+  result_to_return <- data.frame(
     "onset_date" = onset_date,
     "turnover_date" = turnover_date,
     "exponential_portion_duration" = as.numeric(turnover_date - onset_date),
@@ -288,9 +329,12 @@ find_exponential_portion_v3f <- function(incidence_list,
     "rho_post_exp" = slope_post_exp,
     "doubling_time_post_exp" = doubling_time_post_exp,
     "R_post_exp" = R_post_exp,
+    "rho_current" = slope_current,
+    "doubling_time_current" = doubling_time_current,
+    "R_current" = R_current,
     "sigma_SEIR" = sigma_SEIR,
-    "gamma_SEIR" = gamma_SEIR,
-    "plot" = the_plot
+    "gamma_SEIR" = gamma_SEIR
+    # "plot" = the_plot
   )
   return(result_to_return)
   

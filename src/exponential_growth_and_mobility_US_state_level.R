@@ -54,6 +54,8 @@ exponential_growth_and_mobility_US_state_level <- function(
     "onset_date_OVERRIDE" = override_table$onset_date_override,
     "turnover_date"=empty_date_vector,
     "turnover_date_OVERRIDE" = override_table$turnover_date_override,
+    "incidence_at_turnover" = rep(NA,n_rows),
+    "cumu_incidence_at_turnover" = rep(NA,n_rows),
     "rho"=rep(NA,n_rows),
     "doubling_time"=rep(NA,n_rows),
     "R" = rep(NA,n_rows),
@@ -146,6 +148,8 @@ exponential_growth_and_mobility_US_state_level <- function(
                                                     # state = state,
                                                     pathname = pathname)
       df$turnover_date[i] <- v_exp_portion$turnover_date
+      df$incidence_at_turnover[i] <- incidence_frame$cases[incidence_frame$dates==v_exp_portion$turnover_date] # [TO IMPROVE]: Should really be averaging about this date!
+      df$cumu_incidence_at_turnover[i] <- incidence_frame$cumu_cases[incidence_frame$dates==v_exp_portion$turnover_date]
       df$rho[i]  <- v_exp_portion$rho
       df$doubling_time[i] <- v_exp_portion$doubling_time
       df$R[i] <- v_exp_portion$R

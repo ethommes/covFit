@@ -1,14 +1,14 @@
 
-jhu_covid_get_region_incidence_US_v2 <- function(covid_data, 
+jhu_covid_get_region_incidence_US_v3 <- function(covid_data, 
          covid_death_data,
          start_date,
          Province_State_input, 
-         use_Admin2, # T or F, depending on whether or not we want to impose a condition on Province.State
+         # use_Admin2, # T or F, depending on whether or not we want to impose a condition on Province.State
          Admin2_input,
          plot_TrueFalse,
-         npop,
          normalize_by_npop) {
-
+  if (Admin2_input != "") {use_Admin2 <- T} else {use_Admin2 <- F}
+  
   # dates:
   n_days <- ncol(covid_data) - 11
   dates <- seq.Date(from = as.Date(start_date), length.out = n_days,by="day")
@@ -18,8 +18,8 @@ jhu_covid_get_region_incidence_US_v2 <- function(covid_data,
                               covid_death_data$Province_State == as.character(Province_State_input))
   if (use_Admin2) {
     region_cases_raw <- subset(region_cases_raw, Admin2 == as.character(Admin2_input))
-    region_deaths_raw <- subset(covid_death_data,
-                                  covid_death_data$Admin2 == as.character(Admin2_input))
+    region_deaths_raw <- subset(region_deaths_raw,
+                                  Admin2 == as.character(Admin2_input))
   }
 
   # region_deaths_raw <- subset(covid_death_data,
@@ -33,7 +33,8 @@ jhu_covid_get_region_incidence_US_v2 <- function(covid_data,
 
   cumu_cases <- as.numeric(colSums(region_cases_raw[,12:ncol(covid_data)]))
   cumu_deaths <- as.numeric(colSums(region_deaths_raw[,13:ncol(covid_death_data)]))
-  
+  npop <- as.numeric(sum(region_deaths_raw$Population))
+
   total_cases <- cumu_cases[length(cumu_cases)]
   total_deaths <- cumu_deaths[length(cumu_deaths)]
   
@@ -59,7 +60,8 @@ jhu_covid_get_region_incidence_US_v2 <- function(covid_data,
     "cumu_cases" = cumu_cases,
     "cumu_deaths" = cumu_deaths,
     "cases" = cases,
-    "deaths" = deaths
+    "deaths" = deaths,
+    "pop" = rep(npop,length(dates))
   )
 
   if (plot_TrueFalse) {

@@ -18,12 +18,12 @@ jhu_covid_get_region_incidence_2 <- function(covid_data,
   if (use_Province.State) {
     if (exclude_Province.State) {
       region_cases_raw <- subset(region_cases_raw, Province.State == !Province.State_input)
-      region_deaths_raw <- subset(region_deaths_raw,
-                                  Province.State == !Province.State_input)
+      region_deaths_raw <- subset(covid_death_data,
+                                  covid_death_data$Country.Region == !Country.Region_input)
     } else {
       region_cases_raw <- subset(region_cases_raw, Province.State == Province.State_input)
-      region_deaths_raw <- subset(region_deaths_raw,
-                                  Province.State == Province.State_input)
+      region_deaths_raw <- subset(covid_death_data,
+                                  covid_death_data$Country.Region == Country.Region_input)
     }
   }
 
