@@ -90,11 +90,22 @@ region_mobility_and_incidence_v2 <- function(inputs) {
     
     
     # Get Google mobility info:
-    google_mobi <- read_google_mobility(google_mobility,
+    google_mobi <- read_google_mobility_v2(google_mobility,
                                         mobility_country = mobility_country, 
                                         mobility_region = mobility_region, 
                                         mobility_subregion = mobility_subregion,
-                                        mobility_window_half_width = mobility_window_half_width)
+                                        mobility_window_size = mobility_window_half_width)
+
+    # analyze_R_and_mobility_v2(incidence_frame,
+    #                        google_mobi,
+    #                        mobility_country = mobility_country, 
+    #                        mobility_region = mobility_region, 
+    #                        mobility_subregion = mobility_subregion,
+    #                        mobility_window_size = mobility_window_size,
+    #                        R_window_size = R_window_size,
+    #                        sigma_SEIR = sigma_SEIR,
+    #                        gamma_SEIR = gamma_SEIR)
+    analyze_R_and_mobility(incidence_frame, google_mobi, df_exp_portion$R, inputs)
 
     cumu_cases_at_turnover_raw <- incidence_frame$cumu_cases[incidence_frame$dates==df_exp_portion$turnover_date]
     cumu_cases_at_turnover_corrected <- incidence_frame_cfr_adj$cumu_cases[incidence_frame_cfr_adj$dates==df_exp_portion$turnover_date]

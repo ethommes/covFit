@@ -88,12 +88,13 @@ US_state_mobility_and_incidence <- function(input) {
       input$Country.Region <- "US"
       input$Province.State <- states[i]
       input$Admin2 = ""
-      input$mobility_country = "US"
+      input$mobility_country = "United States"
       input$mobility_region = states[i]
       input$mobility_subregion = ""
-      
       input$lags_vector <- c(10,0) # PLACEHOLDER
+      
       state_output <- region_mobility_and_incidence_v2(input)
+      
       df$onset_date[i] <- state_output$onset_date
       df$turnover_date[i] <- state_output$turnover_date
       df$cumu_cases_raw[i] <- state_output$cumu_cases_raw
@@ -119,8 +120,6 @@ US_state_mobility_and_incidence <- function(input) {
       df$rho_current[i] <- state_output$rho_current
       df$doubling_time_current[i] <- state_output$doubling_time_current
       df$R_current[i] <- state_output$R_current
-  
-      browser()
     }
     return(df)
     

@@ -279,13 +279,13 @@ find_exponential_portion_v3g <- function(incidence_list,
   if (!is.na(pathname)) {
     the_plot_linear <- the_plot + ylim(0,1.5*max(incidence_aggr$cases*SF)) +
       theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.title.y = element_blank()) +
-      annotate_textp(x=0.02,y=0.98, label=text_plot_1, size=9)
+      annotate_textp(x=0.02,y=0.98, label=text_plot_1, size=8)
     filename <- paste0(title,"_exponential_growth.png")
     # ggsave(path=pathname, filename = filename)
     
     the_plot_log <- the_plot + scale_y_log10() +
       theme(axis.title.y = element_blank()) +
-      annotate_textp(x=0.02,y=0.98, label=text_plot_2, size=9)
+      annotate_textp(x=0.02,y=0.98, label=text_plot_2, size=8)
     filename <- paste0(title,"_exponential_growth_LOG.png",sep="")
     # ggsave(path=pathname, filename=filename)
   }
