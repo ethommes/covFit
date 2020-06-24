@@ -3,18 +3,23 @@ read_google_mobility_v2 <- function(google_mobility,
                                 mobility_country, 
                                 mobility_region, 
                                 mobility_subregion,
-                                mobility_window_size) {
+                                mobility_window_size,
+                                alignment) {
   df_google <- google_mobility[google_mobility$country_region == mobility_country &
                                  google_mobility$sub_region_1 == mobility_region &
                                  google_mobility$sub_region_2 == mobility_subregion,]
   df_google$date <- as.Date(df_google$date)
-  if (nrow(df_google > 0)) {
-    recreation <- frollmean(df_google$retail_and_recreation_percent_change_from_baseline, mobility_window_size)
-    grocery <- frollmean(df_google$grocery_and_pharmacy_percent_change_from_baseline, mobility_window_size) 
-    parks <- frollmean(df_google$parks_percent_change_from_baseline, mobility_window_size)
-    transit <- frollmean(df_google$transit_stations_percent_change_from_baseline, mobility_window_size)
-    workplaces <- frollmean(df_google$workplaces_percent_change_from_baseline, mobility_window_size)
-    residential <- frollmean(df_google$residential_percent_change_from_baseline, mobility_window_size)
+  # For time being we care primarily about residential. Check to see if there are any non-NA
+  # values for residential; if not, call the whole thing off.
+  any_residential_data <- max(is.finite(df_google$residential_percent_change_from_baseline))
+  # if (nrow(df_google > 0)) {
+  if (any_residential_data > 0) {
+    recreation <- frollmean(df_google$retail_and_recreation_percent_change_from_baseline, mobility_window_size, hasNA=T, na.rm=T, align=alignment)
+    grocery <- frollmean(df_google$grocery_and_pharmacy_percent_change_from_baseline, mobility_window_size, hasNA=T, na.rm=T, align=alignment) 
+    parks <- frollmean(df_google$parks_percent_change_from_baseline, mobility_window_size, hasNA=T, na.rm=T, align="center")
+    transit <- frollmean(df_google$transit_stations_percent_change_from_baseline, mobility_window_size, hasNA=T, na.rm=T, align=alignment)
+    workplaces <- frollmean(df_google$workplaces_percent_change_from_baseline, mobility_window_size, hasNA=T, na.rm=T, align=alignment)
+    residential <- frollmean(df_google$residential_percent_change_from_baseline, mobility_window_size, hasNA=T, na.rm=T, align=alignment)
 
     df_google <- data.frame(
       df_google,
@@ -113,6 +118,8 @@ read_google_mobility_v2 <- function(google_mobility,
       min <- df_google$residential_roll[i_min]
       ind <- df_google$residential_roll >= (min+max)/2 & df_google$date >= df_google$date[i_min]; ind[is.na(ind)] <- F
       date_residential_mid <- min(df_google$date[ind])
+      min_of_residential <- min
+      max_of_residential <- max
       # lines(df_google$date, df_google$residential_roll,col="brown"); abline(v = date_residential_mid,col="brown")
     } else {
       date_residential_mid <- NA
@@ -145,7 +152,9 @@ read_google_mobility_v2 <- function(google_mobility,
                       "date_residential_mid" = date_residential_mid,
                       "date_mean_rec_groc_trans_work_mid" = date_mean_rec_groc_trans_work_mid,
                       "max_of_mean_rec_groc_trans_work" = max_of_mean_rec_groc_trans_work,
-                      "min_of_mean_rec_groc_trans_work" = min_of_mean_rec_groc_trans_work
+                      "min_of_mean_rec_groc_trans_work" = min_of_mean_rec_groc_trans_work,
+                      "max_of_residential" = max_of_residential,
+                      "min_of_residential" = min_of_residential
     )
   } else {
     to_return <- list("df"=df_google,
@@ -157,7 +166,9 @@ read_google_mobility_v2 <- function(google_mobility,
                       "date_residential_mid" = NA,
                       "date_mean_rec_groc_trans_work_mid" = NA,
                       "max_of_mean_rec_groc_trans_work" = NA,
-                      "min_of_mean_rec_groc_trans_work" = NA
+                      "min_of_mean_rec_groc_trans_work" = NA,
+                      "max_of_residential" = NA,
+                      "min_of_residential" = NA
     )
   }
   

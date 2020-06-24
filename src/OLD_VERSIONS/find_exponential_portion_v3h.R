@@ -2,8 +2,9 @@
 # _v3f: 
 #   - outputs also onset date
 #   - allows selecting whether or not to plot current R 
+# _v3h: extrapolates also the total post-turnover fit (blue) to predict_date
 
-find_exponential_portion_v3g <- function(incidence_list,
+find_exponential_portion_v3h <- function(incidence_list,
                                          population,
                                          CFR, # NA to not perform correction
                                      N_days_to_aggregate, 
@@ -20,6 +21,7 @@ find_exponential_portion_v3g <- function(incidence_list,
                                      gamma_SEIR, 
                                      plot_TF,
                                      title,
+                                     filename,
                                      CFR_text,
                                      # county,
                                      # state,
@@ -29,6 +31,7 @@ find_exponential_portion_v3g <- function(incidence_list,
   # then combine every 2 days:
   dates <- incidence_list$dates
   cases <- incidence_list$cases
+  latest_date <- incidence_list$dates[nrow(incidence_list)]
   
   # NOTE: deactivate ability to aggregate dates for now
   # dates_aggr <- seq.Date(dates[1], dates[length(dates)],by=N_days_to_aggregate)
@@ -98,8 +101,7 @@ find_exponential_portion_v3g <- function(incidence_list,
   }
   # Lop off the un-needed rows from fit_results_frame:
   fit_results_frame <- fit_results_frame[1:index,]
-  # if (county == "Fresno") {browser()}
-  
+
   
   # Let's go with the maximum t test value as the metric of where things turn over, 
   # since that seems to be the generally most sharply-peaked metric:
@@ -145,7 +147,9 @@ find_exponential_portion_v3g <- function(incidence_list,
     post_exponential_portion <- frame_for_lm[(turnover_index+1):nrow(frame_for_lm),]
     post_exp_portion_fit <- lm(logy~dates,data=post_exponential_portion)
     
-    newdata <- data.frame("dates" = seq(post_exponential_portion$dates[1],post_exponential_portion$dates[length(post_exponential_portion$dates)],by="day"))
+    # newdata <- data.frame("dates" = seq(post_exponential_portion$dates[1],post_exponential_portion$dates[length(post_exponential_portion$dates)],by="day"))
+    newdata <- data.frame("dates" = seq(post_exponential_portion$dates[1], predict_date,by="day"))
+    
     prediction <- predict(post_exp_portion_fit, newdata =newdata,interval=interval_type)
     post_exp_portion_fit_for_plot <- data.frame(newdata,exp(prediction))
     
@@ -177,6 +181,13 @@ find_exponential_portion_v3g <- function(incidence_list,
     slope_current <- current_fit_summary$coefficients["dates","Estimate"]
     doubling_time_current <- log(2)/slope_current
     R_current <- R0_SEIR(slope_current,sigma_SEIR,gamma_SEIR)
+    
+    # Calculate also the value of the current fit at the current (latest observation) time:
+    current_date_frame <- data.frame("dates"=current_portion$dates[nrow(current_portion)])
+    log_current_incidence_fit <- predict(current_fit,newdata=current_date_frame)
+    current_incidence_fit <- exp(log_current_incidence_fit)
+    # df1 <- data.frame("dates"=t,"inc_pred_scaled"=inc_pred_scaled)
+
   } else {
     intercept_current <- NA
     slope_current <- NA
@@ -226,36 +237,8 @@ find_exponential_portion_v3g <- function(incidence_list,
     # geom_line(data=post_exp_portion_fit_for_plot,aes(x=dates,y=fit),color="red") + 
     geom_point(data=incidence_aggr,aes(x=dates,y=cases*SF)) + 
     geom_point(data=exponential_portion,aes(x=dates,y=y*SF),color="red") + 
-    # ylim(1,2*max(incidence_aggr$cases*SF))
-    # annotate_textp(x=0.02,y=0.98, label=text_plot_1, size=9) +
-    # annotate_textp(x=0.02,y=0.98,label=paste0(
-    #   CFR_text,
-    #   "Total cases up to ",latest_date,":\n",cases_total," (",round(cases_total*1e5/population,0)," per 100,000)\n \n",
-    #   "Initial exponential phase:\n",
-    #   "   rho = ", round(slope,2),"\n",
-    #   "   doubling time = ",round(doubling_time,2)," days (negative value = halving time)\n",
-    #   "   R = ",round(R,2), "\n",
-    #   "   turnover date = ",turnover_date,"\n",
-    #   "\nPost-turnover phase:\n",
-    #   "   rho = ", round(slope_post_exp,2),"\n",
-    #   "   doubling time = ",round(doubling_time_post_exp,2)," days\n",
-    #   "   R_post = ",round(R_post_exp,2),"\n",
-    #   "                 = ",round(R_post_exp/R,2)," R\n",
-    #   "                 = ",round(R_percent_reduction,2),"% reduction\n",
-    #   "\n Last ",window_for_current_R, " days:\n",
-    #   "   R = ",round(R_current,2),"\n",
-    #   "   doubling time = ",round(doubling_time_current,2)," days\n"), size=9) +
-  
-    # labs(title = paste("Initial exponential growth, ",title,sep=""), x="date", y = y_label)
     labs(x="date")
-  
-  
-    
-  
-   
-  
-  
-  
+
   if (!is.na(slope_post_exp)) {
     the_plot <- the_plot +
       geom_line(data=post_exp_portion_fit_for_plot,aes(x=dates,y=fit*SF),color="blue") +
@@ -279,15 +262,18 @@ find_exponential_portion_v3g <- function(incidence_list,
   if (!is.na(pathname)) {
     the_plot_linear <- the_plot + ylim(0,1.5*max(incidence_aggr$cases*SF)) +
       theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.title.y = element_blank()) +
-      annotate_textp(x=0.02,y=0.98, label=text_plot_1, size=8)
-    filename <- paste0(title,"_exponential_growth.png")
+      annotate_textp(x=0.02,y=0.98, label=text_plot_1, size=6.5)
+    # filename <- paste0(title,"_exponential_growth.png")
     # ggsave(path=pathname, filename = filename)
-    
+    # TEST
+    t <- c(incidence_list$dates[nrow(incidence_list)], as.Date("2020-06-30"))
+    log_inc_pred <- log(current_incidence_fit) + slope_current*c(as.integer(t - latest_date))
+    inc_pred <- exp(log_inc_pred)
+    inc_pred_scaled <- inc_pred/population*1e5
+
     the_plot_log <- the_plot + scale_y_log10() +
       theme(axis.title.y = element_blank()) +
-      annotate_textp(x=0.02,y=0.98, label=text_plot_2, size=8)
-    filename <- paste0(title,"_exponential_growth_LOG.png",sep="")
-    # ggsave(path=pathname, filename=filename)
+      annotate_textp(x=0.02,y=0.98, label=text_plot_2, size=6.5)
   }
   gA <- ggplotGrob(the_plot_linear)
   gB <- ggplotGrob(the_plot_log)
@@ -296,11 +282,9 @@ find_exponential_portion_v3g <- function(incidence_list,
   twopanel_plot <- arrangeGrob(rbind(gA, gB),left = y_label, top=title)
   
   
-  
-  # twopanel_plot <- grid.arrange(the_plot_linear, the_plot_log,nrow=2)
-  filename <- paste0(title,"_exponential_fit.png")
-  # ggsave(path=pathname, filename=filename)
+  # filename <- paste0(title,"_exponential_fit.png")
   ggsave(path=pathname, filename=filename, twopanel_plot)
+  dev.off()
 
   # linear_plot <- ggplot(data=incidence_aggr,aes(x=dates,y=cases)) + 
   #   geom_point() +
@@ -332,6 +316,7 @@ find_exponential_portion_v3g <- function(incidence_list,
     "rho_current" = slope_current,
     "doubling_time_current" = doubling_time_current,
     "R_current" = R_current,
+    "incidence_current" = current_incidence_fit,
     "sigma_SEIR" = sigma_SEIR,
     "gamma_SEIR" = gamma_SEIR
     # "plot" = the_plot
