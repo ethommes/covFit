@@ -48,6 +48,7 @@ US_state_mobility_and_incidence <- function(input) {
       "rho_post_exp" = rep(NA,n_rows),
       "doubling_time_post_exp" = rep(NA,n_rows),
       "R_post_exp" = rep(NA,n_rows),
+      "window_for_current" = rep(NA, n_rows),
       "rho_current" = rep(NA,n_rows),
       "doubling_time_current" = rep(NA,n_rows),
       "R_current" = rep(NA,n_rows),
@@ -129,6 +130,7 @@ US_state_mobility_and_incidence <- function(input) {
       df$rho_post_exp[i] <- state_output$rho_post_exp
       df$doubling_time_post_exp[i] <- state_output$doubling_time_post_exp
       df$R_post_exp[i] <- state_output$R_post_exp
+      df$window_for_current[i] <- state_output$window_for_current_R
       df$rho_current[i] <- state_output$rho_current
       df$doubling_time_current[i] <- state_output$doubling_time_current
       df$R_current[i] <- state_output$R_current

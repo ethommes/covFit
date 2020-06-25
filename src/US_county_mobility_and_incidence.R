@@ -72,6 +72,7 @@ US_county_mobility_and_incidence <- function(input, US_states_frame) {
       "rho_post_exp" = rep(NA,n_rows),
       "doubling_time_post_exp" = rep(NA,n_rows),
       "R_post_exp" = rep(NA,n_rows),
+      "window_for_current" = rep(NA,n_rows),
       "rho_current" = rep(NA,n_rows),
       "doubling_time_current" = rep(NA,n_rows),
       "R_current" = rep(NA,n_rows),
@@ -151,6 +152,7 @@ US_county_mobility_and_incidence <- function(input, US_states_frame) {
       df$residential_mobi_max[i] <- state_output$residential_max
       df$residential_mobi_min[i] <- state_output$residential_min
       df$residential_mobi_midpoint_date[i] <- state_output$residential_mobi_midpoint
+      df$window_for_current[i] <- state_output$window_for_current_R
       
     }
     return(df)

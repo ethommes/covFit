@@ -1,5 +1,5 @@
 
-forecast_from_US_states_frame <- function(df, proj_date_1, proj_date_2) {
+forecast_from_US_states_or_counties_frame <- function(df, proj_date_1, proj_date_2) {
   last_date <- df$last_date
   delta_t_1 <- as.integer(proj_date_1 - last_date)
   delta_t_2 <- as.integer(proj_date_2 - last_date)

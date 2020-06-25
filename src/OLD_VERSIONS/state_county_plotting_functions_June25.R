@@ -93,14 +93,12 @@ map_daily_incidence_US_states <- function(US_states_frame, projection_date, proj
 
 map_daily_incidence_US_counties <- function(US_counties_frame, regions_vector, projection_date, projection_baseline, 
                                             print_county_labels_TF) {
-  US_counties_frame <- US_counties_frame[5:nrow(US_counties_frame),]
-  US_counties_frame <- US_counties_frame %>% subset(is.finite(incidence_current))
-  my_breaks <- c(0.1,1,10,100,1000,1e4)
+  browser()
+  my_breaks <- c(0.1,1,10,100,1000,1e4, 1e5, 1e6, 1e7, 1e8)
   if (is.na(projection_date)) {
-    df_plot2 <- data.frame("fips"=US_counties_frame$FIPS, "daily_cases_per_100k" = US_counties_frame$incidence_current/US_counties_frame$pop*1e5)
-    df_plot2$daily_cases_per_100k[df_plot2$daily_cases_per_100k > 1e5] <- 1e5 # Can't infect more than the total population on one day!
-    # df_plot2 <- df_plot1 %>% subset(is.finite(daily_cases_per_100k)) 
-    # df_plot2 <- df_plot2[5:nrow(df_plot2),]
+    df_plot1 <- data.frame("fips"=US_counties_frame$FIPS, "daily_cases_per_100k" = US_counties_frame$incidence_current/US_counties_frame$pop*1e5)
+    df_plot2 <- df_plot1 %>% subset(is.finite(daily_cases_per_100k)) 
+    df_plot2 <- df_plot2[5:nrow(df_plot2),]
     # df_plot2 <- df_plot2[5:nrow(df_plot2),]
     title <- paste0("Current (", US_counties_frame$last_date[1], ") incidence,\n",
                     "averaged over last ", US_counties_frame$window_for_current[1], " days\n",
@@ -109,29 +107,25 @@ map_daily_incidence_US_counties <- function(US_counties_frame, regions_vector, p
     US_counties_frame_proj <- forecast_from_US_states_or_counties_frame(US_counties_frame, as.Date("2020-06-30"), projection_date)
     if (projection_baseline == "recent") {
       df_plot1 <- data.frame("fips"=US_counties_frame_proj$FIPS,
-                             "daily_cases_per_100k" = US_counties_frame_proj$forecast_incidence_2_from_recent/US_counties_frame$pop*1e5)
-      # df_plot1$daily_cases_per_100k <- min(1e5, df_plot1$daily_cases_per_100k)
-      df_plot2 <- df_plot1 %>% subset(is.finite(daily_cases_per_100k))
-      df_plot2$daily_cases_per_100k[df_plot2$daily_cases_per_100k > 1e5] <- 1e5
-      # df_plot2 <- df_plot2[5:nrow(df_plot2),]
+                             "daily_cases_per_100k" = min(US_counties_frame_proj$forecast_incidence_2_from_recent/US_counties_frame$pop*1e5, 1e5))
+      df_plot2 <- df_plot1 %>% subset(is.finite(daily_cases_per_100k)) 
+      df_plot2 <- df_plot2[5:nrow(df_plot2),]
       
       title <- paste0("Projected incidence for ", projection_date, ",\n",
                       "made on ", US_counties_frame$last_date[1], ",\n",
                       "using incidence over last ", US_counties_frame$window_for_current[1], " days")
     } else {
       df_plot1 <- data.frame("fips"=US_counties_frame_proj$FIPS,
-                             "daily_cases_per_100k" = US_counties_frame_proj$forecast_incidence_2_from_post_turnover/US_counties_frame$pop*1e5)
-      # df_plot1$daily_cases_per_100k <- min(1e5, df_plot1$daily_cases_per_100k)
-      df_plot2 <- df_plot1 %>% subset(is.finite(daily_cases_per_100k))
-      df_plot2$daily_cases_per_100k[df_plot2$daily_cases_per_100k > 1e5] <- 1e5
-      # df_plot2 <- df_plot2[5:nrow(df_plot2),]
+                             "daily_cases_per_100k" = min(US_counties_frame_proj$forecast_incidence_2_from_post_turnover/US_counties_frame$pop*1e5, 1e5))
+      df_plot2 <- df_plot1 %>% subset(is.finite(daily_cases_per_100k)) 
+      df_plot2 <- df_plot2[5:nrow(df_plot2),]
       title <- paste0("Projected incidence for ", projection_date,",\n", 
                       "made on ", US_counties_frame_proj$last_date[1], ",\n",
                       "using full post-turnover phase of each county")
     }
   }
   
-  incidence_max <- max(df_plot2$daily_cases_per_100k)
+  incidence_max <- max(df_plot2$cases_per_100k)
   if (is.na(regions_vector)) {
     plt1 <- plot_usmap(regions = "counties", data=df_plot2, values="daily_cases_per_100k", color="darkgray", labels=print_county_labels_TF) +
       labs(title=title)

@@ -140,7 +140,8 @@ region_mobility_and_incidence_v3 <- function(inputs) {
                                    "cumu_cases_at_turnover_per_100k_corrected" = cumu_cases_at_turnover_corrected/pop*1e5,
                                    "residential_mobi_midpoint" = google_mobi$date_workplaces_mid,
                                    "residential_min" = google_mobi$min_of_residential,
-                                   "residential_max" = google_mobi$max_of_residential
+                                   "residential_max" = google_mobi$max_of_residential,
+                                   "window_for_current_R" = most_recent_R_window
                                    )
     return(output_to_return)
 # [LEFT OFF HERE; read_google_mobility returns empty frame]
