@@ -51,12 +51,12 @@ region_mobility_and_incidence_v3 <- function(inputs) {
     }
     
     
-   
+   # turnover_point_data <- find_turnover_point_v2(incidence_frame_cfr_adj,as.Date("2020-03-15"), as.Date("2020-04-15"), as.Date("2020-05-15"))
       
     # Apply find_exponential_portion_v3f() to the corrected incidence:
     if (incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
       # df_exp_portion <- find_exponential_portion_v3i(
-      df_exp_portion <- find_exponential_portion_v4(
+      df_exp_portion <- find_exponential_portion_v5(
         incidence_list = incidence_frame_cfr_adj,
         population = pop,
         N_days_to_aggregate = 1,

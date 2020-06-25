@@ -3,8 +3,9 @@
 #   - outputs also onset date
 #   - allows selecting whether or not to plot current R 
 # _v3h: extrapolates also the total post-turnover fit (blue) to predict_date
+# _v4b: Makes use of find_turnover_point()
 
-find_exponential_portion_v4 <- function(incidence_list,
+find_exponential_portion_v3i <- function(incidence_list,
                                          population,
                                          CFR, # NA to not perform correction
                                          N_days_to_aggregate, 
@@ -27,6 +28,9 @@ find_exponential_portion_v4 <- function(incidence_list,
                                          # county,
                                          # state,
                                          pathname) { 
+  # title = paste(county,state)
+  # Aggregate by the specified number of days, i.e. if N_days_to_aggregate = 2,
+  # then combine every 2 days:
   dates <- incidence_list$dates
   cases <- incidence_list$cases
   latest_date <- incidence_list$dates[nrow(incidence_list)]
@@ -39,7 +43,8 @@ find_exponential_portion_v4 <- function(incidence_list,
   incidence_aggr <- data.frame("dates"=dates_aggr,"cases"=cases_aggr)
   # Total number of cases: 
   cases_total <- incidence_list$cumu_cases[nrow(incidence_list)]
-
+  latest_date <- incidence_list$dates[nrow(incidence_list)]
+  
   # Date on which cumulative case threshold is reached:
   onset_index <- min(which(incidence_list$cumu_cases >= onset_cumu_case_threshold))
   onset_date <- incidence_list$date[onset_index]
@@ -59,33 +64,57 @@ find_exponential_portion_v4 <- function(incidence_list,
   }
   
   # NEW for _v3i: Only look for turnover point if total number of cases is above specified threshold
-  # if (cases_total >= total_case_threshold_for_turnover_calc) {
-  if (cases_total >= 0) {
-    
-    # Put data in the form find_turnover_point() expects:
-    df <- data.frame("dates"=frame_for_lm$dates, "cases"=frame_for_lm$y)
-    # CAUTION: The below dates should NOT ultimately be hardwired!
-    turnover_date <- find_turnover_point_v2(incidence_frame = df,
-                        min_turnover_date = as.Date("2020-02-01"),
-                        max_turnover_date = as.Date("2020-05-01"),
-                        max_date_to_consider = as.Date("2020-06-01"))
-
+  if (cases_total >= total_case_threshold_for_turnover_calc) {
     
     
-   
+    max_nrow <- max_starting_index*nrow(frame_for_lm)
+    fit_results_frame <- data.frame(
+      "t_value_slope" = rep(NA,max_nrow),
+      "i_index" = rep(NA,max_nrow),
+      "j_index" = rep(NA,max_nrow)
+    )
+    
+    index <- 0 # We will flatten the table generated in the following nested loop, using 'index' as the index
+    for (i in 1:max_starting_index) { # loop over candidate first points, i.e. up to and including `max_starting_index`
+      for (j in (i+5):nrow(frame_for_lm)) { # minimum window size is 6
+        index <- index + 1
+        fit_results_frame$i_index[index] <- i
+        fit_results_frame$j_index[index] <- j
+        subframe <- frame_for_lm[i:j,]
+        fit <- lm(logy~dates, data=subframe)
+        regr_summary <- summary(fit)
+        # rsquared[index] <- regr_summary$r.squared
+        # adj_rsquared[index] <- regr_summary$adj.r.squared
+        # fstat[index] <- regr_summary$fstatistic[1]
+        # sigma[index] <- regr_summary$sigma
+        # max_residual[index] <- max(regr_summary$residuals)
+        fit_results_frame$t_value_slope[index] <- regr_summary$coefficients["dates","t value"]
+      }
+    }
+    # Lop off the un-needed rows from fit_results_frame:
+    fit_results_frame <- fit_results_frame[1:index,]
+    
+    
+    # Let's go with the maximum t test value as the metric of where things turn over, 
+    # since that seems to be the generally most sharply-peaked metric:
+    # Index of maximum t_value_slope:
+    ind_max_t_value <- which.max(fit_results_frame$t_value_slope)
     # From the above, set our onset and turnover dates and corresponding indices, UNLESS on over-ride date has been 
     # supplied for one or the other 
     if (is.na(onset_date_override)) { 
-      onset_index <- 1
+      onset_index <- fit_results_frame$i_index[ind_max_t_value]
+      onset_date <- frame_for_lm$dates[onset_index]
     } else {
       onset_date <- onset_date_override
       onset_index <- min(which(frame_for_lm$dates >= onset_date)) # allow for possibility that the exact override date had zero incidence and thus doesn't exist in frame_for_lm
     }
-    if (!is.na(turnover_date_override)) {
+    if (is.na(turnover_date_override)) {
+      turnover_index <- fit_results_frame$j_index[ind_max_t_value]
+      turnover_date <- frame_for_lm$dates[turnover_index]
+    } else {
       turnover_date <- turnover_date_override
+      turnover_index <- min(which(frame_for_lm$dates >= turnover_date)) # allow for possibility that the exact override date had zero incidence and thus doesn't exist in frame_for_lm
     }
-    turnover_index <- min(which(frame_for_lm$dates >= turnover_date))
-    
     
     exponential_portion <- frame_for_lm[onset_index:turnover_index,]
     
@@ -97,18 +126,10 @@ find_exponential_portion_v4 <- function(incidence_list,
     exp_portion_fit_for_plot <- data.frame(newdata,exp(prediction))
     
     fit_summary <- summary(exp_portion_fit) 
-    if (nrow(fit_summary$coefficients) > 1) {
-      intercept <- fit_summary$coefficients["(Intercept)","Estimate"] 
-      slope <- fit_summary$coefficients["dates","Estimate"]
-      doubling_time <- log(2)/slope
-      R <- R0_SEIR(slope,sigma_SEIR,gamma_SEIR)
-    } else {
-      intercept <- NA
-      slope <- NA
-      doubling_time <- NA
-      R <- NA
-    }
-    
+    intercept <- fit_summary$coefficients["(Intercept)","Estimate"] 
+    slope <- fit_summary$coefficients["dates","Estimate"]
+    doubling_time <- log(2)/slope
+    R <- R0_SEIR(slope,sigma_SEIR,gamma_SEIR)
     
     # Analysis of post-exponential portion.  If the number of points after this value is 
     # less than four, we can't sensibly
@@ -287,9 +308,7 @@ find_exponential_portion_v4 <- function(incidence_list,
     grid.newpage()
     twopanel_plot <- arrangeGrob(rbind(gA, gB),left = y_label, top=title)
     
-    # ggsave(path=pathname, filename=paste0(filename,".jpg"), twopanel_plot)
-    ggsave(path=pathname, filename=filename, twopanel_plot)
-    
+    ggsave(path=pathname, filename=paste0(filename,".jpg"), twopanel_plot)
     dev.off()
   }
   
@@ -301,7 +320,7 @@ find_exponential_portion_v4 <- function(incidence_list,
   } else {
     exponential_portion_duration <- NA
   }
-
+  
   result_to_return <- data.frame(
     "onset_date" = onset_date,
     "turnover_date" = turnover_date,
