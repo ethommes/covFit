@@ -20,7 +20,7 @@ plot_current_vs_projected_incidence_states <- function(data_table, projection_da
                                      ymax=forecast_incidence_2_from_recent/pop*1e5),color="black")
   print(plt3)
   
-  ggsave(path = pathname_figs, filename = paste0("current_vs_projected_incidence_US_states_",projection_date,".png"))
+  ggsave(path = pathname, filename = paste0("current_vs_projected_incidence_US_states_",projection_date,".png"))
 }
 
 #======================================
@@ -44,7 +44,7 @@ map_cumulative_incidence_US_states <- function(proc_US_states_frame) {
     scale_fill_gradient(name="cumulative\ncases\nper 100k", trans="log", breaks=my_breaks, labels=my_breaks,
                         low="white", high="red") 
   print(plot_incidence_map_all_us_log)
-  ggsave(path=pathname_figs, filename="map_current_cumulative_incidence.png")
+  ggsave(path=pathname_figs, filename=paste0("map_cumulative_incidence_", proc_US_states_frame$last_date[1], ".png"))
 }
 
 #=====================================
@@ -87,12 +87,14 @@ map_daily_incidence_US_states <- function(US_states_frame, projection_date, proj
   plt1_log <- plt1 + scale_fill_gradient(name="daily cases\nper 100k", trans="log", breaks=my_breaks, labels=my_breaks, low="white", high="red")
   # print(plot_linear)
   print(plt1_log)
+  ggsave(path=pathname_figs, filename=paste0("map_daily_incidence_projection_", projection_date, ".png"))
+  
 }
 
 # =================
 
 map_daily_incidence_US_counties <- function(US_counties_frame, regions_vector, projection_date, projection_baseline, 
-                                            print_county_labels_TF) {
+                                            print_county_labels_TF, pathname) {
   US_counties_frame <- US_counties_frame[5:nrow(US_counties_frame),]
   US_counties_frame <- US_counties_frame %>% subset(is.finite(incidence_current))
   my_breaks <- c(0.1,1,10,100,1000,1e4)
@@ -133,16 +135,21 @@ map_daily_incidence_US_counties <- function(US_counties_frame, regions_vector, p
   
   incidence_max <- max(df_plot2$daily_cases_per_100k)
   if (is.na(regions_vector)) {
-    plt1 <- plot_usmap(regions = "counties", data=df_plot2, values="daily_cases_per_100k", color="darkgray", labels=print_county_labels_TF) +
+    plt1 <- plot_usmap(regions = "counties", data=df_plot2, values="daily_cases_per_100k", color="NA", labels=print_county_labels_TF) +
       labs(title=title)
   } else {
-    plt1 <- plot_usmap(regions = "counties", include = regions_vector, data=df_plot2, values="daily_cases_per_100k", color="darkgray", labels=print_county_labels_TF) +
+    plt1 <- plot_usmap(regions = "counties", include = regions_vector, data=df_plot2, values="daily_cases_per_100k", color="NA", labels=print_county_labels_TF) +
       labs(title=title)
   }
   
-  plt1_log <- plt1 + scale_fill_gradient(name="daily cases\nper 100k", trans="log", breaks=my_breaks, labels=my_breaks, limits=c(0.1,incidence_max),low="white", high="red")
+  plt1_log <- plt1 + scale_fill_gradient(name="daily cases\nper 100k", trans="log", breaks=my_breaks, labels=my_breaks, limits=c(0.1,incidence_max),low="white", high="red") +
+    theme(legend.position = "right")
     # print(plot_linear)
   print(plt1_log)
+  regions_vector_string <- paste0(regions_vector, collapse="_")
+  filename <- paste0("map_county_daily_incidence_projection_", regions_vector_string, "_", projection_date, ".png")
+  ggsave(path=pathname, filename=filename)
+  
   return(df_plot2)
 
 }

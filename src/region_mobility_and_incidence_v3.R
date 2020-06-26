@@ -27,12 +27,16 @@ region_mobility_and_incidence_v3 <- function(inputs) {
     # Date of most recent observation:
     last_date <- incidence_frame$dates[nrow(incidence_frame)]
     incidence_frame_cfr_adj <- incidence_frame
+    lagged_CFR_frame <- NA
+    lag <- NA
     
     if (!is.na(CFR)) { # If CFR is not specified, don't do any adjusting
       if (!is.finite(cfr_correction_factor)) { # Only comput cfr_correction_factor if it hasn't been specified
         lagged_CFR_frame <- death_lags(incidence_frame,lags_vector,plot_cfr_lags_TF)
-        cfr_observed <- lagged_CFR_frame$cfr[1]
         lag <- lagged_CFR_frame$lag[1] # For now, just use the first element of lags_vector as the lag
+        
+        cfr_observed <- lagged_CFR_frame$cfr[1]
+        
         if (is.finite(cfr_observed) & cfr_observed > 0) {
           cfr_correction_factor <- cfr_observed/CFR
           if (cfr_correction_factor < 1) {cfr_correction_factor <- 1} # Can't have fewer than the observed number of cases!
