@@ -16,6 +16,7 @@ library(data.table)
 library(ggrepel)
 library(grid)
 library(gridExtra)
+library(countrycode)
 
 setwd("src")
 file.sources <- list.files(pattern="*.R$")

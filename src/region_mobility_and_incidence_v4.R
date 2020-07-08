@@ -1,5 +1,5 @@
  
-region_mobility_and_incidence_v3 <- function(inputs) {
+region_mobility_and_incidence_v4 <- function(inputs) {
   # 
   with(inputs,{
     if (Country.Region=="US") {US_TF <- T} else {US_TF <- F}
@@ -23,6 +23,15 @@ region_mobility_and_incidence_v3 <- function(inputs) {
                                                           exclude_Province.State = F,
                                                           Province.State_input = Province.State,
                                                           plot_TrueFalse = F)
+      # If population isn't specified, use 2017 World Bank data:
+      if (is.na(input$pop)) { 
+        data("world_bank_pop")
+        # convert country name to World Bank country code:
+        wb_country_code <- countrycode(Country.Region, origin="country.name", destination="wb")
+        pop_line <- subset(world_bank_pop, world_bank_pop$country == "ALB" & world_bank_pop$indicator == "SP.POP.TOTL")
+        input$pop <- pop_line$`2017`
+      }
+      
     }
     # Date of most recent observation:
     last_date <- incidence_frame$dates[nrow(incidence_frame)]
@@ -77,7 +86,6 @@ region_mobility_and_incidence_v3 <- function(inputs) {
         sigma_SEIR = sigma_SEIR,
         gamma_SEIR = gamma_SEIR,
         plot_TF = plot_TF,
-        plot_to_screen_TF = plot_to_screen_TF,
         title = paste0(Admin2, " ", Province.State, " ", Country.Region),
         filename = paste0(Country.Region,"_",Province.State,"_",Admin2,"_exponential_fit.",filetype),
         CFR_text = CFR_text, 

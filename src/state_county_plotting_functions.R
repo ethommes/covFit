@@ -27,7 +27,7 @@ plot_current_vs_projected_incidence_states <- function(data_table, projection_da
 
 #======================================
 
-map_cumulative_incidence_US_states <- function(proc_US_states_frame) {
+map_cumulative_incidence_US_states <- function(proc_US_states_frame, pathname_figs) {
   df_plot1 <- proc_US_states_frame %>% subset(is.finite(cumu_cases_per_100k_corrected)) %>%
     subset(state_abbr != "") 
   df_plot2 <- data.frame("state"=df_plot1$state_abbr, "cases_per_100k" = df_plot1$cumu_cases_per_100k_corrected)
@@ -51,7 +51,7 @@ map_cumulative_incidence_US_states <- function(proc_US_states_frame) {
 
 #=====================================
 
-map_daily_incidence_US_states <- function(US_states_frame, projection_date, projection_baseline) {
+map_daily_incidence_US_states <- function(US_states_frame, projection_date, projection_baseline, pathname_figs) {
   # - use NA for projection_date to map current incidence
   # - projection_baseline can have value of either "recent" or "post_turnover"
   
@@ -89,7 +89,7 @@ map_daily_incidence_US_states <- function(US_states_frame, projection_date, proj
   plt1_log <- plt1 + scale_fill_gradient(name="daily cases\nper 100k", trans="log", breaks=my_breaks, labels=my_breaks, low="white", high="red")
   # print(plot_linear)
   print(plt1_log)
-  ggsave(path=pathname_figs, filename=paste0("map_daily_incidence_projection_", projection_date, ".png"))
+  ggsave(path=pathname_figs, filename=paste0("map_daily_incidence_projection_", projection_baseline, "_", projection_date, ".png"))
   
 }
 
@@ -149,7 +149,7 @@ map_daily_incidence_US_counties <- function(US_counties_frame, regions_vector, p
     # print(plot_linear)
   print(plt1_log)
   regions_vector_string <- paste0(regions_vector, collapse="_")
-  filename <- paste0("map_county_daily_incidence_projection_", regions_vector_string, "_", projection_date, ".png")
+  filename <- paste0("map_county_daily_incidence_projection_", projection_baseline, "_", regions_vector_string, "_", projection_date, ".png")
   ggsave(path=pathname, filename=filename)
   
   return(df_plot2)
