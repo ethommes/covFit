@@ -1,8 +1,11 @@
+# _v5: adds option to fit post-exponential phase only up to the beginning of the 
+#   window for current R and incidence.  Only difference is that it calls find_exponential_portion_v7()
+#   rather than find_exponential_portion_v6()
  
-region_mobility_and_incidence_v4 <- function(inputs) {
+region_mobility_and_incidence_v5 <- function(inputs) {
   # 
   with(inputs,{
-    if (Country.Region=="US") {US_TF <- T} else {US_TF <- F}
+    if (Country.Region=="US" & Province.State != "") {US_TF <- T} else {US_TF <- F}
     if (US_TF) {
       incidence_frame <- jhu_covid_get_region_incidence_US_v3(covid_data,
                                                               covid_death_data,
@@ -15,23 +18,16 @@ region_mobility_and_incidence_v4 <- function(inputs) {
       inputs$pop <- incidence_frame$pop[1]
       
     } else {
+      if (Province.State == "") {use_Province.State <- F} else {use_Province.State <- T}
       incidence_frame <- jhu_covid_get_region_incidence_2(covid_data,
                                                           covid_death_data,
                                                           start_date,
                                                           Country.Region,
-                                                          use_Province.State = T,
+                                                          # use_Province.State = T,
+                                                          use_Province.State, # Leave off while we're still at country level, otherwise e.g. Canada doesn't work
                                                           exclude_Province.State = F,
                                                           Province.State_input = Province.State,
                                                           plot_TrueFalse = F)
-      # If population isn't specified, use 2017 World Bank data:
-      if (is.na(input$pop)) { 
-        data("world_bank_pop")
-        # convert country name to World Bank country code:
-        wb_country_code <- countrycode(Country.Region, origin="country.name", destination="wb")
-        pop_line <- subset(world_bank_pop, world_bank_pop$country == "ALB" & world_bank_pop$indicator == "SP.POP.TOTL")
-        input$pop <- pop_line$`2017`
-      }
-      
     }
     # Date of most recent observation:
     last_date <- incidence_frame$dates[nrow(incidence_frame)]
@@ -65,11 +61,10 @@ region_mobility_and_incidence_v4 <- function(inputs) {
     
     
    # turnover_point_data <- find_turnover_point_v2(incidence_frame_cfr_adj,as.Date("2020-03-15"), as.Date("2020-04-15"), as.Date("2020-05-15"))
-      
     # Apply find_exponential_portion_v3f() to the corrected incidence:
     if (incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
       # df_exp_portion <- find_exponential_portion_v3i(
-      df_exp_portion <- find_exponential_portion_v6(
+      df_exp_portion <- find_exponential_portion_v7(
         incidence_list = incidence_frame_cfr_adj,
         population = pop,
         N_days_to_aggregate = 1,
@@ -83,10 +78,12 @@ region_mobility_and_incidence_v4 <- function(inputs) {
         window_for_current_R = most_recent_R_window,
         predict_date = predict_date,
         plot_current_R_TF = T,
+        post_turnover_up_to_present_TF = post_turnover_up_to_present_TF,
         sigma_SEIR = sigma_SEIR,
         gamma_SEIR = gamma_SEIR,
         plot_TF = plot_TF,
         plot_only_linear_TF = plot_only_linear_TF,
+        plot_to_screen_TF = plot_to_screen_TF,
         title = paste0(Admin2, " ", Province.State, " ", Country.Region),
         filename = paste0(Country.Region,"_",Province.State,"_",Admin2,"_exponential_fit.",filetype),
         CFR_text = CFR_text, 

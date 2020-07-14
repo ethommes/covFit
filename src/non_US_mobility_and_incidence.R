@@ -4,7 +4,6 @@ non_US_mobility_and_incidence <- function(country, correction_factor, covid_data
   # inputs is a list
   # NOTE: will not work if mobility data and JHU data use a different country name format (e.g. "South Korea"
   # vs. "Korea, South")
-  
   Country.Region <- country
   Province.State <- ""
   Admin2 <- ""
@@ -32,6 +31,6 @@ non_US_mobility_and_incidence <- function(country, correction_factor, covid_data
   input$lags_vector = c(10) 
   input$plot_cfr_lags_TF <- F
   input$plot_TF <- T
-  input$plot_only_linear_TF <- plot_only_linear_TF
-  temp <- region_mobility_and_incidence_v3(input)
+  # input$plot_only_linear_TF <- plot_only_linear_TF
+  temp <- region_mobility_and_incidence_v5(input)
 }

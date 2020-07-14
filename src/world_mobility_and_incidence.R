@@ -74,6 +74,9 @@ world_mobility_and_incidence <- function(countries_frame, input) {
       # Get population from World Bank data:  
       country_code <- countrycode(country, origin="country.name", destination="wb")
       pop_line <- world_bank_pop %>% subset(country==country_code) %>% subset(indicator=="SP.POP.TOTL")
+      if (nrow(pop_line) == 0) {
+        browser()
+      }
       pop_country <- pop_line$`2017`
       
       land_area <- NA # Need to implement
@@ -93,7 +96,7 @@ world_mobility_and_incidence <- function(countries_frame, input) {
       input$pop <- pop_country
       input$cfr_correction_factor <- df$cfr_correction_factor[i]
       
-      country_output <- region_mobility_and_incidence_v3(input)
+      country_output <- region_mobility_and_incidence_v5(input)
       
       df$last_date[i] <- country_output$last_date
       df$onset_date[i] <- country_output$onset_date
