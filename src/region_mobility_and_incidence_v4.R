@@ -86,6 +86,7 @@ region_mobility_and_incidence_v4 <- function(inputs) {
         sigma_SEIR = sigma_SEIR,
         gamma_SEIR = gamma_SEIR,
         plot_TF = plot_TF,
+        plot_only_linear_TF = plot_only_linear_TF,
         title = paste0(Admin2, " ", Province.State, " ", Country.Region),
         filename = paste0(Country.Region,"_",Province.State,"_",Admin2,"_exponential_fit.",filetype),
         CFR_text = CFR_text, 

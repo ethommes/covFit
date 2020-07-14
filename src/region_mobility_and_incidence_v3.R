@@ -56,7 +56,6 @@ region_mobility_and_incidence_v3 <- function(inputs) {
     
     
    # turnover_point_data <- find_turnover_point_v2(incidence_frame_cfr_adj,as.Date("2020-03-15"), as.Date("2020-04-15"), as.Date("2020-05-15"))
-      
     # Apply find_exponential_portion_v3f() to the corrected incidence:
     if (incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
       # df_exp_portion <- find_exponential_portion_v3i(
@@ -77,6 +76,7 @@ region_mobility_and_incidence_v3 <- function(inputs) {
         sigma_SEIR = sigma_SEIR,
         gamma_SEIR = gamma_SEIR,
         plot_TF = plot_TF,
+        plot_only_linear_TF = plot_only_linear_TF,
         plot_to_screen_TF = plot_to_screen_TF,
         title = paste0(Admin2, " ", Province.State, " ", Country.Region),
         filename = paste0(Country.Region,"_",Province.State,"_",Admin2,"_exponential_fit.",filetype),

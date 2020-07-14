@@ -51,7 +51,7 @@ map_cumulative_incidence_US_states <- function(proc_US_states_frame, pathname_fi
 
 #=====================================
 
-map_daily_incidence_US_states <- function(US_states_frame, projection_date, projection_baseline, pathname_figs) {
+map_daily_incidence_US_states <- function(US_states_frame, projection_date, projection_baseline, incidence_limits, pathname_figs) {
   # - use NA for projection_date to map current incidence
   # - projection_baseline can have value of either "recent" or "post_turnover"
   
@@ -86,7 +86,7 @@ map_daily_incidence_US_states <- function(US_states_frame, projection_date, proj
   }
   plt1 <- plot_usmap(data=df_plot2,values="daily_cases_per_100k", color="darkgray", labels=T) +
     labs(title=title)
-  plt1_log <- plt1 + scale_fill_gradient(name="daily cases\nper 100k", trans="log", breaks=my_breaks, labels=my_breaks, low="white", high="red")
+  plt1_log <- plt1 + scale_fill_gradient(name="daily cases\nper 100k", trans="log", breaks=my_breaks, labels=my_breaks, low="white", high="red", limits = incidence_limits)
   # print(plot_linear)
   print(plt1_log)
   ggsave(path=pathname_figs, filename=paste0("map_daily_incidence_projection_", projection_baseline, "_", projection_date, ".png"))
@@ -96,7 +96,7 @@ map_daily_incidence_US_states <- function(US_states_frame, projection_date, proj
 # =================
 
 map_daily_incidence_US_counties <- function(US_counties_frame, regions_vector, projection_date, projection_baseline, 
-                                            print_county_labels_TF, pathname) {
+                                            print_county_labels_TF, incidence_limits,pathname) {
   US_counties_frame <- US_counties_frame[5:nrow(US_counties_frame),]
   US_counties_frame <- US_counties_frame %>% subset(is.finite(incidence_current))
   my_breaks <- c(0.1,1,10,100,1000,1e4)
@@ -144,7 +144,7 @@ map_daily_incidence_US_counties <- function(US_counties_frame, regions_vector, p
       labs(title=title)
   }
   
-  plt1_log <- plt1 + scale_fill_gradient(name="daily cases\nper 100k", trans="log", breaks=my_breaks, labels=my_breaks, limits=c(0.1,incidence_max),low="white", high="red") +
+  plt1_log <- plt1 + scale_fill_gradient(name="daily cases\nper 100k", trans="log", breaks=my_breaks, labels=my_breaks, limits=incidence_limits, low="white", high="red") +
     theme(legend.position = "right")
     # print(plot_linear)
   print(plt1_log)

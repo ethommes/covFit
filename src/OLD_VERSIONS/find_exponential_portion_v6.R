@@ -183,6 +183,7 @@ find_exponential_portion_v6 <- function(incidence_list,
       R_current <- NA
       current_incidence_fit <- NA
     }
+    
     # ------PLOTTING-----
     # NOTE: If plot_current_R_TF = FALSE, don't bother plotting at all
     if (plot_TF & plot_current_R_TF) {
@@ -223,12 +224,11 @@ find_exponential_portion_v6 <- function(incidence_list,
       
       # If plot_current_R_TF = TRUE, add on the current fit:
       if (plot_current_R_TF) {
-         the_plot <- ggplot(data=current_portion_fit_for_plot,aes(x=dates,y=fit*SF)) +
+        the_plot <- ggplot(data=current_portion_fit_for_plot,aes(x=dates,y=fit*SF)) +
           geom_line(color="darkgreen") +
           geom_ribbon(data = current_portion_fit_for_plot, aes(x=dates, y=fit*SF, ymin=lwr*SF,ymax=upr*SF),fill="green",alpha=0.4) +
           geom_point(data=current_portion,aes(x=dates,y=y*SF),color="darkgreen",shape=0, size=3) +
-          geom_point(data=incidence_aggr, aes(x=dates, y=cases*SF)) +
-          scale_x_date(date_breaks = "months", date_labels = "%b")
+          geom_point(data=incidence_aggr, aes(x=dates, y=cases*SF))
         
         
         # geom_abline(intercept=intercept_current, slope=slope_current, color="green") +
@@ -263,15 +263,9 @@ find_exponential_portion_v6 <- function(incidence_list,
       
       # write_output is set to F if population = 1 [may want to add other conditions...]
       if (!is.na(pathname)) {
-        # figure out y upper limit:
-        y_upper_limit_linear <- SF*max(c(current_portion_fit_for_plot$upr,
-                                         exp_portion_fit_for_plot$upr,
-                                         post_exp_portion_fit_for_plot$upr))
-        
-        the_plot_linear <- the_plot + 
-          # ylim(0,1.5*max(incidence_aggr$cases*SF)) 
-          ylim(0, y_upper_limit_linear)
-
+        the_plot_linear <- the_plot + ylim(0,1.5*max(incidence_aggr$cases*SF)) +
+          # theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.title.y = element_blank()) +
+          annotate_textp(x=0.02,y=0.98, label=text_plot_1, size=6.5)
         # filename <- paste0(title,"_exponential_growth.png")
         # ggsave(path=pathname, filename = filename)
         # TEST
@@ -282,19 +276,14 @@ find_exponential_portion_v6 <- function(incidence_list,
         
         the_plot_log <- the_plot + scale_y_log10() +
           theme(axis.title.y = element_blank()) +
-          annotate_textp(x=0.02,y=0.88, label=text_plot_2, size=6.5) +
-          annotate_textp(x=0.5, y=0.98, label="LOG PLOT", size=8.5)
-          # labs(title="log plot")
+          annotate_textp(x=0.02,y=0.98, label=text_plot_2, size=6.5)
       }
       
       if (plot_only_linear_TF) {
-        text_plot <- paste0(text_plot_1, text_plot_2)
-        finished_plot <- the_plot_linear + annotate_textp(x=0.02,y=0.98, label=text_plot, size=10) + labs(title=title)
+        finished_plot <- the_plot_linear
       } else {
-        the_plot_linear_2panel <- the_plot_linear + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.title.y = element_blank()) +
-          annotate_textp(x=0.02,y=0.88, label=text_plot_1, size=6.5) +
-          annotate_textp(x=0.5, y=0.98, label = "LINEAR PLOT", size=8.5)
-        gA <- ggplotGrob(the_plot_linear_2panel)
+        the_plot_linear_2panel <- the_plot_linear + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.title.y = element_blank())
+        gA <- ggplotGrob(the_plot_linear)
         gB <- ggplotGrob(the_plot_log)
         grid.newpage()
         finished_plot <- arrangeGrob(rbind(gA, gB),left = y_label, top=title)
