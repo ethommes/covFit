@@ -1,5 +1,5 @@
 
-analyze_R_and_mobility_v3 <- function(incidence, google_mobi, initial_R, turnover_date, inputs) {
+analyze_R_and_mobility_v2 <- function(incidence, google_mobi, initial_R, turnover_date, inputs) {
                                    # google_mobi,
                                    # mobility_country, 
                                    # mobility_region, 
@@ -14,6 +14,23 @@ analyze_R_and_mobility_v3 <- function(incidence, google_mobi, initial_R, turnove
 
     incidence_aggr <- aggregate_incidence(incidence,R_window_size)
     log_aggr_cases <- incidence_aggr
+    # mean_cases <- incidence_aggr$cases/R_window_size
+    # log_mean_cases <- log(mean_cases)
+    # mean_rho <- c(NA,diff(log_mean_cases))/R_window_size
+    # mean_R <- R0_SEIR(mean_rho,sigma_SEIR,gamma_SEIR)
+    
+    # TEST-----
+    # df <- smoothed_incidence_and_rho(incidence, R_window_size)
+    # plt1 <-  plot(df$dates, df$log_cases, type="l")
+    # lines(df$dates, df$log_cases_roll, col="blue", lwd=2)
+    # browser()
+    # 
+    # plot(df$dates, df$rho_roll, type="l", col="green", lwd=2)
+    # browser()
+    
+    # END TEST-----
+    # We'll calculate relative change in R wrt. the first finite R value:
+    # delta_R <- 100*(mean_R - initial_R)/initial_R
     
     # Remove all dates before the first case
     first_case_index <- min(which(incidence$cumu_cases > 0))
@@ -36,7 +53,6 @@ analyze_R_and_mobility_v3 <- function(incidence, google_mobi, initial_R, turnove
     # Plot:
     inds <- is.finite(delta_R)
     # df_plot_delta_R <- data.frame("date"=incidence_aggr$dates, "delta_R"=delta_R, "R" = mean_R)[inds,]
-    browser()
     
     df_plot_residential <- data.frame("date" = google_mobi$df$date, "residential_roll_transformed" = residential_roll_transformed)
     x_min <- min(df_plot_delta_R$date[1], df_plot_residential$date[1])

@@ -8,6 +8,10 @@ non_US_mobility_and_incidence <- function(country, correction_factor, covid_data
   Province.State <- ""
   Admin2 <- ""
   mobility_country <- Country.Region
+  
+  # Hard-coded: Special exceptions in which mobility_country != Country.Region
+  if (Country.Region=="US") mobility_country <- "United States"
+  
   mobility_region <- Province.State
   mobility_subregion <- Admin2
   
@@ -23,7 +27,7 @@ non_US_mobility_and_incidence <- function(country, correction_factor, covid_data
   input$Province.State <- Province.State
   input$Admin2 <- Admin2
   input$pop <- pop
-  input$mobility_country <- Country.Region
+  input$mobility_country <- mobility_country
   input$mobility_region <- Province.State
   input$mobility_subregion = Admin2
   input$CFR = 1 # setting to NA means no CFR adjustment is made
@@ -32,5 +36,5 @@ non_US_mobility_and_incidence <- function(country, correction_factor, covid_data
   input$plot_cfr_lags_TF <- F
   input$plot_TF <- T
   # input$plot_only_linear_TF <- plot_only_linear_TF
-  temp <- region_mobility_and_incidence_v5(input)
+  temp <- region_mobility_and_incidence_v6(input)
 }
