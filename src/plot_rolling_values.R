@@ -1,6 +1,5 @@
 
 plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
-  
   pop <- inputs$pop
   
   # Find y limit.  Make upper limit = 1e5 (i.e. entire population infected on 1 day!)

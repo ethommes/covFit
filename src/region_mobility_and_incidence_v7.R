@@ -128,7 +128,6 @@ region_mobility_and_incidence_v7 <- function(inputs) {
                                         alignment = rolling_mean_alignment)
 
     # New incidence + R + projection plot :
-    browser()
     rolling_list <- rolling_R_and_incidence(incidence =  incidence_frame_cfr_adj, 
                                             predict_start_date = as.Date("2020-08-20"), 
                                             predict_end_date =inputs$predict_date, 
