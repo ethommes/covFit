@@ -30,11 +30,12 @@ non_US_mobility_and_incidence <- function(country, correction_factor, covid_data
   input$mobility_country <- mobility_country
   input$mobility_region <- Province.State
   input$mobility_subregion = Admin2
-  input$CFR = 1 # setting to NA means no CFR adjustment is made
+  # input$CFR = 1 # setting to NA means no CFR adjustment is made
   input$cfr_correction_factor <- correction_factor  
   input$lags_vector = c(10) 
   input$plot_cfr_lags_TF <- F
-  input$plot_TF <- T
+  # input$plot_TF <- T
   # input$plot_only_linear_TF <- plot_only_linear_TF
-  temp <- region_mobility_and_incidence_v6(input)
+  temp <- region_mobility_and_incidence_v7(input)
+  return(temp)
 }

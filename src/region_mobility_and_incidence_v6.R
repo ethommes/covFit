@@ -81,7 +81,7 @@ region_mobility_and_incidence_v6 <- function(inputs) {
         post_turnover_up_to_present_TF = post_turnover_up_to_present_TF,
         sigma_SEIR = sigma_SEIR,
         gamma_SEIR = gamma_SEIR,
-        plot_TF = plot_TF,
+        plot_TF = F, # NEW: hardwire to not print, since we're not using these plots anymore
         plot_only_linear_TF = plot_only_linear_TF,
         plot_to_screen_TF = plot_to_screen_TF,
         title = paste0(Admin2, " ", Province.State, " ", Country.Region),
@@ -125,20 +125,44 @@ region_mobility_and_incidence_v6 <- function(inputs) {
                                         mobility_window_size = mobility_window_half_width,
                                         alignment = rolling_mean_alignment)
 
-    # TEST:
-    rolling_list <- rolling_R_and_incidence(incidence_frame_cfr_adj, as.Date("2020-08-20"), inputs$predict_date, 30, inputs)
-    plot_rolling_values(rolling_list, inputs)
+    # New incidence + R + projection plot :
+    rolling_list <- rolling_R_and_incidence(incidence =  incidence_frame_cfr_adj, 
+                                            predict_start_date = as.Date("2020-08-20"), 
+                                            predict_end_date =inputs$predict_date, 
+                                            onset_date = df_exp_portion$onset_date,
+                                            turnover_date = df_exp_portion$turnover_date,
+                                            inputs = inputs)
+    plot_rolling_values(rolling_list = rolling_list, 
+                        title = paste0(mobility_subregion, " ", Province.State, " ", Country.Region),
+                        CFR_text = CFR_text,
+                        inputs = inputs)
 
     # if (nrow(google_mobi$df) > 0) {
     # Only call analyze_R_and_mobility if there exists any residential data:
     any_residential_data <- max(is.finite(google_mobi$df$residential_percent_change_from_baseline))
-    if (any_residential_data > 0 & plot_TF & incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
+    if (any_residential_data > 0 & plot_R_and_mobility_TF & incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
       analyze_R_and_mobility_v2(incidence_frame, google_mobi, df_exp_portion$R, df_exp_portion$turnover_date, inputs)
     }
 
     n_days <- nrow(incidence_frame)
     output_to_return <- data.frame("last_date" = last_date,
                                    df_exp_portion,
+                                   # "onset_date" = df_exp_portion$onset_date, # BEGIN NEW
+                                   # "turnover_date" = df_exp_portion$turnover_date,
+                                   # "exponential_portion_duration" = df_exp_portion$exponential_portion_duration,
+                                   # "rho" = rolling_list$rho_0,
+                                   # "doubling_time" = rolling_list$doubling_time_0,
+                                   # "R" = rolling_list$R0,
+                                   # "R_" = rolling_list$
+                                   "rho_0_rolling" = rolling_list$rho_0,
+                                   "R0" = rolling_list$R0,
+                                   "rho_mid" = rolling_list$rho_mid,
+                                   "rho_min" = rolling_list$rho_min,
+                                   "rho_max" = rolling_list$rho_max,
+                                   "R_mid" = rolling_list$R_mid,
+                                   "R_min" = rolling_list$R_min,
+                                   "R_max" = rolling_list$R_max,
+                                   "incidence_current" = rolling_list$cases_0,
                                    "CFR_applied" = CFR,
                                    "cfr_observed" = cfr_observed,
                                    "cfr_correction_factor" = cfr_correction_factor,

@@ -121,7 +121,7 @@ US_county_mobility_and_incidence <- function(input, US_states_frame) {
       input$lags_vector <- c(10,0)
       input$cfr_correction_factor <- df$cfr_correction_factor[i]
       
-      state_output <- region_mobility_and_incidence_v3(input)
+      state_output <- region_mobility_and_incidence_v6(input)
       df$last_date[i] <- state_output$last_date
       df$onset_date[i] <- state_output$onset_date
       df$turnover_date[i] <- state_output$turnover_date

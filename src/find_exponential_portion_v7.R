@@ -146,6 +146,7 @@ find_exponential_portion_v7 <- function(incidence_list,
         doubling_time_post_exp <- NA
         R_post_exp <- NA
         R_percent_reduction <- NA
+        pathname <- NA # NEW; disable plotting
       }
       
     } else {
@@ -194,7 +195,7 @@ find_exponential_portion_v7 <- function(incidence_list,
     }
     # ------PLOTTING-----
     # NOTE: If plot_current_R_TF = FALSE, don't bother plotting at all
-    if (plot_TF & plot_current_R_TF) {
+    if (plot_TF & plot_current_R_TF & !is.na(pathname)) {
       # if (plot_TF) {
       # regression fit of values with index <= ind_max_t_value:
       # Post-exponential portion:

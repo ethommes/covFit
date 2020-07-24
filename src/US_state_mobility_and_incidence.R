@@ -74,7 +74,7 @@ US_state_mobility_and_incidence <- function(input) {
     df$state_abbr[13] <- "DC"
     
     for (i in 1:length(states)) {
-    # for (i in 49:50) {
+    # for (i in 10:15) {
       state <- states[i]
       cat("\f", i,  "Doing ", state)
       flush.console()
@@ -105,7 +105,7 @@ US_state_mobility_and_incidence <- function(input) {
       input$mobility_subregion = ""
       input$lags_vector <- c(10,0) # PLACEHOLDER
       
-      state_output <- region_mobility_and_incidence_v3(input)
+      state_output <- region_mobility_and_incidence_v6(input)
       
       df$last_date[i] <- state_output$last_date
       df$onset_date[i] <- state_output$onset_date
