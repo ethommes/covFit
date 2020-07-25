@@ -10,9 +10,26 @@ rolling_R_and_incidence <- function(incidence, predict_start_date, predict_end_d
     # first_case_index <- min(which(incidence$cumu_cases > 0))
     # incidence <- incidence[first_case_index:nrow(incidence),]
     
-    # ALT: Remove all dates before onset date (computed by find_exponential_portion_v7())
+    browser()
+    
+    # Onset date is the date on which cumulative case threshold is reached:
+    onset_cumu_case_threshold <- cases_per_100k_threshold*pop/1e5
+    onset_index <- min(which(incidence$cumu_cases >= onset_cumu_case_threshold))
+    onset_date <- incidence$date[onset_index]
+    
+    # Turnover date:
+    turnover_date <- find_turnover_point_v2(incidence_frame = incidence,
+                                            min_turnover_date = onset_date,
+                                            max_turnover_date = onset_date+60,
+                                            max_date_to_consider = onset_date+60)
+    
+    # ALT: Remove all dates before onset date 
     incidence <- incidence[incidence$dates >= onset_date,]
     # Create a subframe of df_rho from which to calculate the forecast.
+    # If turnover_date = NA (i.e. we were unsuccessful in finding one), then
+    # just set it to onset_date
+    if (is.na(turnover_date)) {turnover_date <- onset_date}
+    
     incidence_sub <- incidence[incidence$dates <= predict_start_date & incidence$dates >= turnover_date,]
 
     df_rho <- smoothed_incidence_and_rho(incidence, R_window_size, rolling_mean_alignment)

@@ -64,61 +64,62 @@ region_mobility_and_incidence_v7 <- function(inputs) {
     
    # turnover_point_data <- find_turnover_point_v2(incidence_frame_cfr_adj,as.Date("2020-03-15"), as.Date("2020-04-15"), as.Date("2020-05-15"))
     # Apply find_exponential_portion_v3f() to the corrected incidence:
-    if (incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
-      # df_exp_portion <- find_exponential_portion_v3i(
-      df_exp_portion <- find_exponential_portion_v7(
-        incidence_list = incidence_frame_cfr_adj,
-        population = pop,
-        N_days_to_aggregate = 1,
-        daily_case_threshold = 1,
-        total_case_threshold_for_turnover_calc = total_case_threshold_for_turnover_calc,
-        onset_cumu_case_threshold = cases_per_100k_threshold*pop/1e5,
-        max_starting_index = 1,
-        onset_date_override = onset_date_override,
-        turnover_date_override = turnover_date_override,
-        interval_type = interval_type,
-        window_for_current_R = most_recent_R_window,
-        predict_date = predict_date,
-        plot_current_R_TF = T,
-        post_turnover_up_to_present_TF = post_turnover_up_to_present_TF,
-        sigma_SEIR = sigma_SEIR,
-        gamma_SEIR = gamma_SEIR,
-        plot_TF = F, # NEW: hardwire to not print, since we're not using these plots anymore
-        plot_only_linear_TF = plot_only_linear_TF,
-        plot_to_screen_TF = plot_to_screen_TF,
-        title = paste0(Admin2, " ", Province.State, " ", Country.Region),
-        filename = paste0(Country.Region,"_",Province.State,"_",Admin2,"_exponential_fit.",filetype),
-        CFR_text = CFR_text, 
-        pathname = pathname_figs
-      )
-      cumu_cases_at_turnover_raw <- incidence_frame$cumu_cases[incidence_frame$dates==df_exp_portion$turnover_date]
-      cumu_cases_at_turnover_corrected <- incidence_frame_cfr_adj$cumu_cases[incidence_frame_cfr_adj$dates==df_exp_portion$turnover_date]
-      
-    } else {
-      df_exp_portion <- data.frame(
-        "onset_date" = NA,
-        "turnover_date" = NA,
-        "exponential_portion_duration" = NA,
-        "rho" = NA,
-        "doubling_time" = NA,
-        "R" = NA,
-        "rho_post_exp" = NA,
-        "doubling_time_post_exp" = NA,
-        "R_post_exp" = NA,
-        "rho_current" = NA,
-        "doubling_time_current" = NA,
-        "R_current" = NA,
-        "incidence_current" = NA,
-        "sigma_SEIR" = sigma_SEIR,
-        "gamma_SEIR" = gamma_SEIR
-      )
-      
-      cumu_cases_at_turnover_raw <- NA
-      cumu_cases_at_turnover_corrected <- NA
-      
-    }
+    
+    # if (incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
+    #   # df_exp_portion <- find_exponential_portion_v3i(
+    #   df_exp_portion <- find_exponential_portion_v7(
+    #     incidence_list = incidence_frame_cfr_adj,
+    #     population = pop,
+    #     N_days_to_aggregate = 1,
+    #     daily_case_threshold = 1,
+    #     total_case_threshold_for_turnover_calc = total_case_threshold_for_turnover_calc,
+    #     onset_cumu_case_threshold = cases_per_100k_threshold*pop/1e5,
+    #     max_starting_index = 1,
+    #     onset_date_override = onset_date_override,
+    #     turnover_date_override = turnover_date_override,
+    #     interval_type = interval_type,
+    #     window_for_current_R = most_recent_R_window,
+    #     predict_date = predict_date,
+    #     plot_current_R_TF = T,
+    #     post_turnover_up_to_present_TF = post_turnover_up_to_present_TF,
+    #     sigma_SEIR = sigma_SEIR,
+    #     gamma_SEIR = gamma_SEIR,
+    #     plot_TF = F, # NEW: hardwire to not print, since we're not using these plots anymore
+    #     plot_only_linear_TF = plot_only_linear_TF,
+    #     plot_to_screen_TF = plot_to_screen_TF,
+    #     title = paste0(Admin2, " ", Province.State, " ", Country.Region),
+    #     filename = paste0(Country.Region,"_",Province.State,"_",Admin2,"_exponential_fit.",filetype),
+    #     CFR_text = CFR_text, 
+    #     pathname = pathname_figs
+    #   )
+    #   cumu_cases_at_turnover_raw <- incidence_frame$cumu_cases[incidence_frame$dates==df_exp_portion$turnover_date]
+    #   cumu_cases_at_turnover_corrected <- incidence_frame_cfr_adj$cumu_cases[incidence_frame_cfr_adj$dates==df_exp_portion$turnover_date]
+    #   
+    # } else {
+    #   df_exp_portion <- data.frame(
+    #     "onset_date" = NA,
+    #     "turnover_date" = NA,
+    #     "exponential_portion_duration" = NA,
+    #     "rho" = NA,
+    #     "doubling_time" = NA,
+    #     "R" = NA,
+    #     "rho_post_exp" = NA,
+    #     "doubling_time_post_exp" = NA,
+    #     "R_post_exp" = NA,
+    #     "rho_current" = NA,
+    #     "doubling_time_current" = NA,
+    #     "R_current" = NA,
+    #     "incidence_current" = NA,
+    #     "sigma_SEIR" = sigma_SEIR,
+    #     "gamma_SEIR" = gamma_SEIR
+    #   )
+    #   
+    #   cumu_cases_at_turnover_raw <- NA
+    #   cumu_cases_at_turnover_corrected <- NA
+    #   
+    # }
 
-
+    browser()
     # Get Google mobility info:
     google_mobi <- read_google_mobility_v2(google_mobility,
                                         mobility_country = mobility_country, 
@@ -134,10 +135,12 @@ region_mobility_and_incidence_v7 <- function(inputs) {
                                             onset_date = df_exp_portion$onset_date,
                                             turnover_date = df_exp_portion$turnover_date,
                                             inputs = inputs)
+    browser()
     plot_to_return <- plot_rolling_values(rolling_list = rolling_list, 
                         title = paste0(mobility_subregion, " ", Province.State, " ", Country.Region),
                         CFR_text = CFR_text,
                         inputs = inputs)
+    browser()
 
     # if (nrow(google_mobi$df) > 0) {
     # Only call analyze_R_and_mobility if there exists any residential data:

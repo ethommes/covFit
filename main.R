@@ -18,6 +18,7 @@ library(grid)
 library(gridExtra)
 library(countrycode)
 library(ggpubr)
+library(shiny)
 
 setwd("src")
 file.sources <- list.files(pattern="*.R$")
