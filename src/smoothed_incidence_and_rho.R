@@ -3,7 +3,7 @@ smoothed_incidence_and_rho <- function(incidence,window,alignment) {
         
  dates <- incidence$dates
  cases <- incidence$cases
- log_cases <- log(cases)
+ log_cases <- suppressWarnings(log(cases))
  log_cases_roll <- frollmean(log_cases, window, align=alignment, hasNA=T, na.rm=T)
  rho <- c(0,diff(log_cases_roll))
  rho_roll <- frollmean(rho, window, align=alignment, hasNA=T, na.rm=T)

@@ -102,7 +102,9 @@ analyze_R_and_mobility_v2 <- function(incidence, google_mobi, initial_R, turnove
     grid.newpage()
     twopanel_plot <- arrangeGrob(rbind(gA, gB), top=paste0("R and mobility change, ", Admin2," ",Province.State," ", Country.Region))
     filename = paste0(Country.Region, "_", Province.State, "_", Admin2,"_R_and_mobility.",filetype)
-    ggsave(path=pathname_figs, filename=filename, twopanel_plot) 
+    if(inputs$plot_TF) {
+      ggsave(path=pathname_figs, filename=filename, twopanel_plot) 
+    }
     
     # # TEST:
     # ggplot(data=incidence, aes(x=dates, y=log(cases))) + geom_line() +

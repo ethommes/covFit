@@ -119,14 +119,16 @@ region_mobility_and_incidence_v7 <- function(inputs) {
     #   
     # }
 
-    browser()
     # Get Google mobility info:
-    google_mobi <- read_google_mobility_v2(google_mobility,
-                                        mobility_country = mobility_country, 
-                                        mobility_region = mobility_region, 
-                                        mobility_subregion = mobility_subregion,
-                                        mobility_window_size = mobility_window_half_width,
-                                        alignment = rolling_mean_alignment)
+    if (plot_R_and_mobility_TF) {
+      google_mobi <- read_google_mobility_v2(google_mobility,
+                                             mobility_country = mobility_country, 
+                                             mobility_region = mobility_region, 
+                                             mobility_subregion = mobility_subregion,
+                                             mobility_window_size = mobility_window_half_width,
+                                             alignment = rolling_mean_alignment)
+    }
+    
 
     # New incidence + R + projection plot :
     rolling_list <- rolling_R_and_incidence(incidence =  incidence_frame_cfr_adj, 
@@ -135,30 +137,29 @@ region_mobility_and_incidence_v7 <- function(inputs) {
                                             onset_date = df_exp_portion$onset_date,
                                             turnover_date = df_exp_portion$turnover_date,
                                             inputs = inputs)
-    browser()
-    plot_to_return <- plot_rolling_values(rolling_list = rolling_list, 
-                        title = paste0(mobility_subregion, " ", Province.State, " ", Country.Region),
-                        CFR_text = CFR_text,
-                        inputs = inputs)
-    browser()
+      cumu_cases_at_turnover_raw <- incidence_frame$cumu_cases[incidence_frame$dates==rolling_list$turnover_date]
+      cumu_cases_at_turnover_corrected <- incidence_frame_cfr_adj$cumu_cases[incidence_frame_cfr_adj$dates==rolling_list$turnover_date]
+      
+    if (plot_TF | plot_to_screen_TF) {
+      plot_to_return <- plot_rolling_values(rolling_list = rolling_list, 
+                                            title = paste0(mobility_subregion, " ", Province.State, " ", Country.Region),
+                                            CFR_text = CFR_text,
+                                            inputs = inputs)
+    } else {
+      plot_to_return <- plot.new()
+    }
+    
 
-    # if (nrow(google_mobi$df) > 0) {
+    
     # Only call analyze_R_and_mobility if there exists any residential data:
     any_residential_data <- max(is.finite(google_mobi$df$residential_percent_change_from_baseline))
     if (any_residential_data > 0 & plot_R_and_mobility_TF & incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
-      analyze_R_and_mobility_v2(incidence_frame, google_mobi, df_exp_portion$R, df_exp_portion$turnover_date, inputs)
+      analyze_R_and_mobility_v2(incidence_frame, google_mobi, rolling_list$R_max, rolling_list$turnover_date, inputs)
     }
 
     n_days <- nrow(incidence_frame)
     output_to_return <- list("last_date" = last_date,
-                                   "df_exp_portion"=df_exp_portion,
-                                   # "onset_date" = df_exp_portion$onset_date, # BEGIN NEW
-                                   # "turnover_date" = df_exp_portion$turnover_date,
-                                   # "exponential_portion_duration" = df_exp_portion$exponential_portion_duration,
-                                   # "rho" = rolling_list$rho_0,
-                                   # "doubling_time" = rolling_list$doubling_time_0,
-                                   # "R" = rolling_list$R0,
-                                   # "R_" = rolling_list$
+                                   # "df_exp_portion"=df_exp_portion,
                                    "rho_0_rolling" = rolling_list$rho_0,
                                    "R0" = rolling_list$R0,
                                    "rho_mid" = rolling_list$rho_mid,

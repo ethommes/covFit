@@ -51,7 +51,7 @@ base_input_list <- list(
     total_case_threshold_for_turnover_calc = 1000, # INACTIVE
     plot_only_linear_TF = F, # don't plot the logarithmic panel?
     plot_TF = F, # Write plots for each region (to .png files)?
-    plot_to_screen_TF = F, # plot output to screen?
+    plot_to_screen_TF = T, # plot output to screen?
     first_county_index = NA, 
     last_county_index = NA,
     rolling_mean_alignment = "center", 
@@ -100,7 +100,7 @@ server <- function(input, output) {
     
     output$distPlot <- renderPlot({
         
-        inp <- base_input
+        inp <- base_input_list
         inp$plot_R_and_mobility_TF <- F
         inp$plot_only_linear_TF <- F
         inp$predict_from_date <- input$predict_from_date

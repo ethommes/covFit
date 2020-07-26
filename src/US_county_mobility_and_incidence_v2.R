@@ -105,7 +105,7 @@ US_county_mobility_and_incidence_v2 <- function(input, US_states_frame) {
     if (is.na(last_county_index)) {n_end <- n_rows} else {n_end <- last_county_index}
     
     for (i in n_start:n_end) {
-    # for (i in 67:n_rows) {
+    # for (i in 154:n_rows) {
       cat("\f", i,  "Doing ", df$counties[i], df$states[i])
       flush.console()
       input$onset_date_override <- df$onset_date_OVERRIDE[i]
@@ -151,8 +151,7 @@ US_county_mobility_and_incidence_v2 <- function(input, US_states_frame) {
       df$residential_mobi_max[i] <- state_output$residential_max
       df$residential_mobi_min[i] <- state_output$residential_min
       df$residential_mobi_midpoint_date[i] <- state_output$residential_mobi_midpoint
-      df$window_for_current[i] <- state_output$window_for_current_R
-      
+      # df$window_for_current[i] <- state_output$window_for_current_R
     }
     return(df)
   })

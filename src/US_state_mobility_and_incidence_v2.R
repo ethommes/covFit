@@ -19,7 +19,6 @@ US_state_mobility_and_incidence_v2 <- function(input) {
     
     n_rows <- length(states)
     empty_date_vector <- rep(NA,n_rows); class(empty_date_vector) <- "Date"
-    
     # set up (part of) master data frame:
     df <- data.frame(
       "last_date" = empty_date_vector,
@@ -111,7 +110,7 @@ US_state_mobility_and_incidence_v2 <- function(input) {
       input$mobility_subregion = ""
       input$lags_vector <- c(10,0) # PLACEHOLDER
       
-      state_output <- region_mobility_and_incidence_v6(input)
+      state_output <- region_mobility_and_incidence_v7(input)
       
       df$last_date[i] <- state_output$last_date
       df$onset_date[i] <- state_output$onset_date
