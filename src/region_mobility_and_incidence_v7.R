@@ -127,6 +127,10 @@ region_mobility_and_incidence_v7 <- function(inputs) {
                                              mobility_subregion = mobility_subregion,
                                              mobility_window_size = mobility_window_half_width,
                                              alignment = rolling_mean_alignment)
+    } else {
+      google_mobi <- data.frame("residential_mobi_midpoint"=NA,
+                                "residential_min"=NA,
+                                "residential_max"=NA)
     }
     
 
@@ -152,10 +156,13 @@ region_mobility_and_incidence_v7 <- function(inputs) {
 
     
     # Only call analyze_R_and_mobility if there exists any residential data:
-    any_residential_data <- max(is.finite(google_mobi$df$residential_percent_change_from_baseline))
-    if (any_residential_data > 0 & plot_R_and_mobility_TF & incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
-      analyze_R_and_mobility_v2(incidence_frame, google_mobi, rolling_list$R_max, rolling_list$turnover_date, inputs)
+    if (plot_R_and_mobility_TF) {
+      any_residential_data <- max(is.finite(google_mobi$df$residential_percent_change_from_baseline))
+      if (any_residential_data > 0 & incidence_frame_cfr_adj$cumu_cases[nrow(incidence_frame_cfr_adj)] > 0) {
+        analyze_R_and_mobility_v2(incidence_frame, google_mobi, rolling_list$R_max, rolling_list$turnover_date, inputs)
+      }
     }
+    
 
     n_days <- nrow(incidence_frame)
     output_to_return <- list("last_date" = last_date,
