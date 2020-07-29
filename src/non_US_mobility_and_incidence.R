@@ -1,6 +1,6 @@
 
 non_US_mobility_and_incidence <- function(country, correction_factor, covid_data, covid_death_data, plot_only_linear_TF, base_input) {
-  # correction_factor (>1) multiplies observed incidence to correct for under-reporting
+    # correction_factor (>1) multiplies observed incidence to correct for under-reporting
   # inputs is a list
   # NOTE: will not work if mobility data and JHU data use a different country name format (e.g. "South Korea"
   # vs. "Korea, South")

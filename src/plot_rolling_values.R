@@ -3,6 +3,7 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
   if (!is.na(rolling_list$forecast)) {
     pop <- inputs$pop
     
+
     # Find y limit.  Make upper limit = 1e5 (i.e. entire population infected on 1 day!)
     # z <- c(rolling_list$incidence$cases/pop*1e5, exp(rolling_list$forecast$log_cases_max)/pop*1e5) 
     z <- c(rolling_list$incidence$cases/pop*1e5, exp(rolling_list$forecast$log_cases_max)/pop*1e5) 
@@ -11,9 +12,14 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
     
     z <- z[(is.finite(z) & z > 0)]
     z2 <- z2[(is.finite(z2) & z2 > 0)]
+    if (is.na(inputs$manual_max_incidence)) {
+      y_max <- min(max(z), 1.05e4)
+      y_max_linear <- min(max(z2), 1.05e4)
+    } else {
+      y_max <- inputs$manual_max_incidence
+      y_max_linear <- inputs$manual_max_incidence
+    }
     
-    y_max <- min(max(z), 1.05e4)
-    y_max_linear <- min(max(z2), 1.05e4)
     
     
     y_min <- min(z)

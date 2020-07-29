@@ -31,7 +31,6 @@ find_exponential_portion_v7 <- function(incidence_list,
                                          # county,
                                          # state,
                                          pathname) { 
-  browser()
   dates <- incidence_list$dates
   cases <- incidence_list$cases
   latest_date <- incidence_list$dates[nrow(incidence_list)]
@@ -71,6 +70,7 @@ find_exponential_portion_v7 <- function(incidence_list,
     # Put data in the form find_turnover_point() expects:
     df <- data.frame("dates"=frame_for_lm$dates, "cases"=frame_for_lm$y)
     # CAUTION: The below dates should NOT ultimately be hardwired!
+    browser()
     turnover_date <- find_turnover_point_v2(incidence_frame = df,
                         min_turnover_date = as.Date("2020-02-01"),
                         max_turnover_date = as.Date("2020-05-01"),

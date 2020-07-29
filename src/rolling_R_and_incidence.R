@@ -10,15 +10,22 @@ rolling_R_and_incidence <- function(incidence, predict_start_date, predict_end_d
     predict_end_date <- predict_date
 
     # Onset date is the date on which cumulative case threshold is reached:
-    onset_cumu_case_threshold <- cases_per_100k_threshold*pop/1e5
+    # NOTE: Below we're multiplying onset_cumu_case_threshold by cfr_correction_factor so that the specified threshold is applied
+    # to the UNCORRECTED incidence.  
+    onset_cumu_case_threshold <- (cases_per_100k_threshold*cfr_correction_factor)*pop/1e5 
     onset_index <- min(which(incidence$cumu_cases >= onset_cumu_case_threshold))
     onset_date <- incidence$date[onset_index]
     
     # Turnover date:
-    turnover_date <- find_turnover_point_v2(incidence_frame = incidence,
-                                            min_turnover_date = onset_date,
-                                            max_turnover_date = onset_date+60,
-                                            max_date_to_consider = onset_date+60)
+    # turnover_date <- find_turnover_point_v2(incidence_frame = incidence,
+    #                                         min_turnover_date = onset_date,
+    #                                         max_turnover_date = onset_date+60,
+    #                                         max_date_to_consider = onset_date+90)
+    df <- incidence[onset_index:nrow(incidence),]
+    turnover_date <- find_turnover_point_v2(incidence_frame = df,
+                                            min_turnover_date = as.Date("2020-02-01"),
+                                            max_turnover_date = as.Date("2020-05-01"),
+                                            max_date_to_consider = as.Date("2020-06-01"))
     
     # ALT: Remove all dates before onset date 
     incidence <- incidence[incidence$dates >= onset_date,]

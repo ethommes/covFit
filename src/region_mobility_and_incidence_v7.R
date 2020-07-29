@@ -59,7 +59,9 @@ region_mobility_and_incidence_v7 <- function(inputs) {
       incidence_frame_cfr_adj$cases <- as.integer(incidence_frame$cases*cfr_correction_factor)
     } else {
       CFR_text <- "CFR correction not applied"
+      cfr_correction_factor <- 1
     }
+    inputs$cfr_correction_factor <- cfr_correction_factor
     # input$cfr_correction_factor <- cfr_correction_factor
     
    # turnover_point_data <- find_turnover_point_v2(incidence_frame_cfr_adj,as.Date("2020-03-15"), as.Date("2020-04-15"), as.Date("2020-05-15"))
@@ -89,12 +91,12 @@ region_mobility_and_incidence_v7 <- function(inputs) {
     #     plot_to_screen_TF = plot_to_screen_TF,
     #     title = paste0(Admin2, " ", Province.State, " ", Country.Region),
     #     filename = paste0(Country.Region,"_",Province.State,"_",Admin2,"_exponential_fit.",filetype),
-    #     CFR_text = CFR_text, 
+    #     CFR_text = CFR_text,
     #     pathname = pathname_figs
     #   )
     #   cumu_cases_at_turnover_raw <- incidence_frame$cumu_cases[incidence_frame$dates==df_exp_portion$turnover_date]
     #   cumu_cases_at_turnover_corrected <- incidence_frame_cfr_adj$cumu_cases[incidence_frame_cfr_adj$dates==df_exp_portion$turnover_date]
-    #   
+    # 
     # } else {
     #   df_exp_portion <- data.frame(
     #     "onset_date" = NA,
@@ -113,10 +115,10 @@ region_mobility_and_incidence_v7 <- function(inputs) {
     #     "sigma_SEIR" = sigma_SEIR,
     #     "gamma_SEIR" = gamma_SEIR
     #   )
-    #   
+    # 
     #   cumu_cases_at_turnover_raw <- NA
     #   cumu_cases_at_turnover_corrected <- NA
-    #   
+    # 
     # }
 
     # Get Google mobility info:
