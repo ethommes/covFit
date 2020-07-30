@@ -29,17 +29,17 @@
 
 
 
-covid19 <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
-covid19_deaths <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
-covid19_US <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv")
-covid19_deaths_US <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv")
+# covid19 <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
+# covid19_deaths <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+# covid19_US <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv")
+# covid19_deaths_US <- read.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv")
 # # Read in data file with FIPS codes and county land areas.
 # # This is a US Census data file referenced by Wikipedia: https://en.wikipedia.org/wiki/County_statistics_of_the_United_States#cite_note-2010_qf_dataset-13
 # #  - Description: https://web.archive.org/web/20150807220054/http://quickfacts.census.gov/qfd/download_data.html
 # #  - Data dictionary: https://web.archive.org/web/20150821061818/http://quickfacts.census.gov/qfd/download/DataDict.txt
 # #  - The actual file URL: https://web.archive.org/web/20130930014430/http://quickfacts.census.gov/qfd/download/DataSet.txt
-fips_and_land_area_table <- read.csv("inputs/DataSet_with_county_areas.csv")
-fips <- make_fips_table()
+# fips_and_land_area_table <- read.csv("inputs/DataSet_with_county_areas.csv")
+# fips <- make_fips_table()
 
 # Read in Google mobility data:
 # download.file("https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv", destfile = paste0("inputs/Global_Mobility_Report_",Sys.Date(),".csv"))
@@ -53,7 +53,8 @@ base_input_list <- list(
     covid_death_data = covid19_deaths_US,
     fips = fips,
     CFR = 0.004, # CDC best estimate, https://www.cdc.gov/coronavirus/2019-ncov/hcp/planning-scenarios.html
-    cfr_observed = NA, # If not specified, is calculated and applied for a given region 
+    cfr_observed = NA, # If not specified, is calculated and applied for a given region,
+    lags_vector = c(10,0,5,10,15,20,30),
     plot_cfr_lags_TF = F,
     cases_per_100k_threshold = 0.1, # threshold for what we consider onset of outbreak 
     # google_mobility = google_mobility, # the data frame we read in from google above
@@ -89,21 +90,25 @@ base_input_list <- list(
     plot_R_and_mobility_TF = F,
     manual_max_incidence = NA
 )
+countries_vector <- covid19$Country.Region
 # locations_vector <- covid19$Country.Region
 # locations_vector <- NULL
 
 ui <- fluidPage(
 
     # Application title
-    titlePanel("covFit: incidence rolling average and forecast"),
+    titlePanel("covFit: COVID-19 incidence forecast"),
+    # titlePanel("COVID-19 BigBunnyFit: \"It's better than nada!\""),
+    
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
           radioButtons("world_or_US", label=NULL, choices=c("World"="world", "US only"="US")),
-          selectInput("countrySelect", "Country", choices=NULL),
+          # selectInput("countrySelect", "Country", choices=NULL),
+          selectInput("countrySelect", "Country", choices=countries_vector),
           selectInput("regionSelect", "Region (province, state etc)", choices=NULL),
-          selectInput("subregionSelect", "Subregion", choices=NULL),
+          selectInput("subregionSelect", "County (US only)", choices=NULL),
           dateInput("predict_from_date", "Forecast from:"),
           dateInput("predict_date", "Forecast to:"),
           sliderInput("R_window_size", "rolling average window (days)", min=3, max=30, value = 14),
@@ -135,17 +140,33 @@ server <- function(input, output, session) {
       updateSelectInput(session = session, inputId = "countrySelect", choices = countries_vector())
     })
     
+    # Regions dropdown:
     regions_vector <- reactive({
+      browser()
       if (input$world_or_US == "world") {
-        regions_vector <- NULL
+        df_temp <- covid19 %>% subset(Country.Region == input$countrySelect)
+        regions_vector <- c("ALL" = "", df_temp$Province.State)
       } else {
         regions_vector <- covid19_US$Province_State
       }
+      browser()
     })
     observe({
       updateSelectInput(session = session, inputId = "regionSelect", choices = regions_vector())
     })
     
+    # Subregions dropdown:
+    subregions_vector <- reactive({
+      if (input$world_or_US == "world") {
+        subregions_vector <- c("") 
+      } else {
+        df_temp <- covid19_US %>% subset(Province_State == input$regionSelect)
+        subregions_vector <- df_temp$Admin2
+      }
+    })
+    observe({
+      updateSelectInput(session = session, inputId = "subregionSelect", choices = subregions_vector())
+    })
   
     output$Plot <- renderPlot({
         inp <- base_input_list
@@ -171,7 +192,9 @@ server <- function(input, output, session) {
         # }
         
         if (input$world_or_US == "world") {
-          temp <- non_US_mobility_and_incidence(country = input$countrySelect,
+          temp <- non_US_mobility_and_incidence_v2(country = input$countrySelect,
+                                                   region = input$regionSelect,
+                                                   subregion = input$subregionSelect,
                                                 correction_factor = NA, # hard-code for now
                                                 covid_data = covid19,
                                                 covid_death_data = covid19_deaths,
@@ -179,9 +202,11 @@ server <- function(input, output, session) {
                                                 base_input = inp)
           plot_to_render <- temp$plot
         } else {
+          inp$covid_data <- covid19_US
+          inp$covid_death_data <- covid19_deaths_US
           inp$Country.Region <- input$countrySelect
           inp$Province.State <- input$regionSelect
-          inp$Admin2 <- ""
+          inp$Admin2 <- input$subregionSelect
           inp$mobility_subregion <- ""
           temp <- region_mobility_and_incidence_v7(inp)
         

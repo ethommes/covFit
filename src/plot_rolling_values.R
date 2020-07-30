@@ -70,9 +70,9 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
       annotate_textp(x=0.95, y=1.0, label="LINEAR PLOT", size=8.5)
     
     plot2 <- plot_base + 
-      # scale_y_log10(limits=c(y_min,y_max)) + 
+      # scale_y_log10() +
+      coord_cartesian(xlim=c(x_min, x_max), ylim=c(y_min,y_max)) +
       scale_y_log10() +
-      coord_cartesian(ylim=c(y_min,y_max)) +
       # theme(plot.margin = margin(0,5.5,5.5,5.5,"pt")) +
       theme(plot.margin = margin(0,5.5,0,5.5,"pt")) + # NEW
       

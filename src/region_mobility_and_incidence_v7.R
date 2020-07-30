@@ -7,6 +7,7 @@
 region_mobility_and_incidence_v7 <- function(inputs) {
   # 
   with(inputs,{
+    browser()
     if (Country.Region=="US" & Province.State != "") {US_TF <- T} else {US_TF <- F}
     if (US_TF) {
       incidence_frame <- jhu_covid_get_region_incidence_US_v3(covid_data,
