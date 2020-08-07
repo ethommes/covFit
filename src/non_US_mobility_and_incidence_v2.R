@@ -4,7 +4,6 @@ non_US_mobility_and_incidence_v2 <- function(country, region, subregion, correct
   # inputs is a list
   # NOTE: will not work if mobility data and JHU data use a different country name format (e.g. "South Korea"
   # vs. "Korea, South")
-  browser()
   Country.Region <- country
   Province.State <- region
   Admin2 <- subregion

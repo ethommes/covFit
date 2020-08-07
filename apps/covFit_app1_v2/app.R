@@ -104,9 +104,9 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-          radioButtons("world_or_US", label=NULL, choices=c("World"="world", "US only"="US")),
-          # selectInput("countrySelect", "Country", choices=NULL),
-          selectInput("countrySelect", "Country", choices=countries_vector),
+          radioButtons("world_or_US", label=NULL, choices=list("World"="world", "US only"="US")),
+          selectInput("countrySelect", "Country", choices=NULL),
+          # selectInput("countrySelect", "Country", choices=countries_vector),
           selectInput("regionSelect", "Region (province, state etc)", choices=NULL),
           selectInput("subregionSelect", "County (US only)", choices=NULL),
           dateInput("predict_from_date", "Forecast from:"),
@@ -131,9 +131,11 @@ server <- function(input, output, session) {
     # Country dropdown choices are dependent on whether radio button is set to World or US:
     countries_vector <- reactive({
       if (input$world_or_US == "world") {
-        countries_vector <- covid19$Country.Region
+        # countries_vector <- covid19$Country.Region
+        countries_vector <- as.list(covid19$Country.Region)
+        names(countries_vector) <- covid19$Country.Region
       } else {
-        countries_vector <- c("US")
+        countries_vector <- list(US="US")
       }
     })
     observe({
@@ -142,14 +144,17 @@ server <- function(input, output, session) {
     
     # Regions dropdown:
     regions_vector <- reactive({
-      browser()
       if (input$world_or_US == "world") {
         df_temp <- covid19 %>% subset(Country.Region == input$countrySelect)
-        regions_vector <- c("ALL" = "", df_temp$Province.State)
+        # regions_vector <- c(" " = "", df_temp$Province.State)
+        # regions_vector <- c("ALL", regions_vector)
+        regions_vector <- as.list(df_temp$Province.State)
+        names(regions_vector) <- df_temp$Province.State
+        regions_vector <- c(ALL = "", regions_vector)
+        
       } else {
         regions_vector <- covid19_US$Province_State
       }
-      browser()
     })
     observe({
       updateSelectInput(session = session, inputId = "regionSelect", choices = regions_vector())
