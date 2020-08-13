@@ -31,6 +31,7 @@ region_mobility_and_incidence_v7 <- function(inputs) {
                                                           Province.State_input = Province.State,
                                                           plot_TrueFalse = F)
     }
+    browser()
     # Date of most recent observation:
     last_date <- incidence_frame$dates[nrow(incidence_frame)]
     incidence_frame_cfr_adj <- incidence_frame
