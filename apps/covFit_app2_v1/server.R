@@ -21,18 +21,18 @@ server <- function(input, output, session) {
     inp$Country_Region <- input$countrySelect
     
     # Set province/state:
-    if (input$regionSelect == "ALL" | is.na(input$regionSelect)) {
-      inp$Province_State <- ""
-    } else {
-      inp$Province_State <- input$regionSelect
-    }
+    # if (input$regionSelect == "ALL" | is.na(input$regionSelect)) {
+    #   inp$Province_State <- ""
+    # } else {
+      inp$Province_State <- req(input$regionSelect)
+    # }
     
     # Set US county, if applicable
-    if (input$subregionSelect == "ALL" | is.na(input$subregionSelect) ) {
-      inp$Admin2 <- ""
-    } else {
-      inp$Admin2 <- input$subregionSelect
-    }
+    # if (input$subregionSelect == "ALL" | is.na(input$subregionSelect) ) {
+    #   inp$Admin2 <- ""
+    # } else {
+      inp$Admin2 <- req(input$subregionSelect)
+    # }
     
     # Pull out the data for the selected region:
     

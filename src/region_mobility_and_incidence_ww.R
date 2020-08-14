@@ -3,7 +3,6 @@
 # (incl US counties) into one
 region_mobility_and_incidence_ww <- function(inputs) {
   with(inputs,{
-    
     incidence_frame <- inputs$incidence_frame
     
     last_date <- incidence_frame$dates[nrow(incidence_frame)]
@@ -62,8 +61,22 @@ region_mobility_and_incidence_ww <- function(inputs) {
     cumu_cases_at_turnover_corrected <- incidence_frame_cfr_adj$cumu_cases[incidence_frame_cfr_adj$dates==rolling_list$turnover_date]
     
     if (plot_TF | plot_to_screen_TF) {
+      # Construct the plot title:
+      if (Admin2 == "ALL") {
+        title_subregion <- ""
+      } else {
+        title_subregion <- Admin2
+      }
+      if (Province_State == "ALL") {
+        title_region <- ""
+      } else {
+        title_region <- Province_State
+      }
+      title <- paste(title_subregion, title_region, Country_Region)
+      
       plot_to_return <- plot_rolling_values(rolling_list = rolling_list, 
-                                            title = paste0(Admin2, " ", Province_State, " ", Country_Region),
+                                            # title = paste0(Admin2, " ", Province_State, " ", Country_Region),
+                                            title = title,
                                             CFR_text = CFR_text,
                                             inputs = inputs)
     } else {
