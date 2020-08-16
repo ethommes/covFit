@@ -1,0 +1,12 @@
+name: covFit_app2
+title: covFit_app2
+username:
+account: ethommes
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2669622
+bundleId: 3514475
+url: https://ethommes.shinyapps.io/covFit_app2/
+when: 1597379470.31344
+asMultiple: FALSE
+asStatic: FALSE

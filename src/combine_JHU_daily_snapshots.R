@@ -1,5 +1,5 @@
 
-combine_JHU_daily_snapshots <- function(start_date, end_date) {
+combine_JHU_daily_snapshots <- function(start_date, end_date, snapshot_path) {
   # Initialize data frame into which we'll stuff all the snapshots:
   df_names <- c(
     "Date",
@@ -44,7 +44,9 @@ combine_JHU_daily_snapshots <- function(start_date, end_date) {
     # print(snapshot_date)
     snapshot_date_reformat <- format(snapshot_date, "%m-%d-%Y")
     snapshot_filename <- paste0(snapshot_date_reformat, ".csv")
-    snapshot_fullpath <- paste0("../inputs/JHU_daily_snapshots/", snapshot_filename)
+    # snapshot_fullpath <- paste0("../inputs/JHU_daily_snapshots/", snapshot_filename)
+    snapshot_fullpath <- paste0(snapshot_path, snapshot_filename)
+    
     if (!file.exists(snapshot_fullpath)) {
       # print(paste(snapshot_fullpath, "doesn't exist"))
       snapshot_URL <- paste0("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/", snapshot_filename)
@@ -98,6 +100,8 @@ combine_JHU_daily_snapshots <- function(start_date, end_date) {
   df$Country_Region[df$Country_Region == "Mainland China"] <- "China"
   df$Country_Region[df$Country_Region == "Hong Kong"] <- "China"
   df$Country_Region[df$Country_Region == "Hong Kong SAR"] <- "China"
+  df$Country_Region[df$Country_Region == "Republic of Korea"] <- "Korea, South"
+  df$Country_Region[df$Country_Region == "South Korea"] <- "Korea, South"
 
   # Back-calculate the population for each region, using the last snapshot 
   # (needs to be one of the ones with the newer 14-column format that includes
