@@ -1,6 +1,7 @@
 
 make_incidence_frame_ww <- function(df, inp) {
   
+  browser()
   # 1) Filter to country:
   region_data <- df %>% subset(Country_Region == inp$Country_Region)
   
