@@ -1,7 +1,5 @@
 
 make_incidence_frame_ww <- function(df, inp) {
-  
-  browser()
   # 1) Filter to country:
   region_data <- df %>% subset(Country_Region == inp$Country_Region)
   
@@ -18,6 +16,17 @@ make_incidence_frame_ww <- function(df, inp) {
   # region_data <- df %>% subset(Country_Region == inp$Country_Region & 
   #                                Province_State == inp$Province_State &
   #                                Admin2 == inp$Admin2)
+  
+  # 4) Filter to trial site, if the option is selected:
+  if(inp$filter_to_trial_site_YN) {
+    region_data <- region_data %>% subset(`Site name` == inp$trial_site)  
+    # Set country, region and subregion to the appropriate values.  Since we're looking only at 
+    # a single trial site, these entries are the same all the way through and we can just
+    # take the first one:
+    inp$Country_Region <- region_data$`Site country`[1]
+    inp$Province_State <- region_data$`Site State`[1]
+    inp$Admin2 <- region_data$county[1]
+  }
   
   # Build incidence_frame, turning any NAs to zeros...
   tmp1 <- data.frame(

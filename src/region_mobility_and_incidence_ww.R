@@ -62,17 +62,26 @@ region_mobility_and_incidence_ww <- function(inputs) {
     
     if (plot_TF | plot_to_screen_TF) {
       # Construct the plot title:
-      if (Admin2 == "ALL") {
-        title_subregion <- ""
+      if (!filter_to_trial_site_YN) {
+        # If we're NOT restricting to only trial sites:
+        if (Admin2 == "ALL") {
+          title_subregion <- ""
+        } else {
+          title_subregion <- Admin2
+        }
+        if (Province_State == "ALL") {
+          title_region <- ""
+        } else {
+          title_region <- Province_State
+        }
+        title <- paste(title_subregion, title_region, Country_Region)
       } else {
-        title_subregion <- Admin2
+        # If we ARE restricting to only trial sites:
+        title <- paste0("SITE: ", trial_site, " --- LOCATION: ", Admin2, " ", Province_State, " ", Country_Region)
+        # title <- paste0(trial_site, ", ", " ", Admin2, " ", Province_State, " ", Country_Region)
       }
-      if (Province_State == "ALL") {
-        title_region <- ""
-      } else {
-        title_region <- Province_State
-      }
-      title <- paste(title_subregion, title_region, Country_Region)
+      
+      
       
       plot_to_return <- plot_rolling_values(rolling_list = rolling_list, 
                                             # title = paste0(Admin2, " ", Province_State, " ", Country_Region),

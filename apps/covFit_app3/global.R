@@ -39,8 +39,10 @@ base_input_list <- list(
   # google_mobility = google_mobility, # the data frame we read in from google above
   start_date = as.Date("2020-01-22"), # first date of JHU data
   pop = NA, # have to provide if not US; if US, it's provided in the deaths data
+  filter_to_trial_site_YN = FALSE,
   Country_Region = NA,
   Province_State = NA,
+  trial_site = NA,
   Admin2 = NA, # US county; not used if doing state-level or (for time being) another country
   mobility_country = NA,
   mobility_region = NA,

@@ -87,7 +87,8 @@ server <- function(input, output, session) {
     if (input$trial_sites_only) {
       df <- df_trial_sites
     }
-    
+    inp$filter_to_trial_site_YN <- input$trial_sites_only
+    inp$trial_site <- input$siteSelect
     inp <- make_incidence_frame_ww(df, inp)
     temp <- region_mobility_and_incidence_ww(inp)
     
