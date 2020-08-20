@@ -71,6 +71,7 @@ server <- function(input, output, session) {
     inp$predict_from_date <- input$predict_from_date
     inp$predict_date <- input$predict_date
     inp$R_window_size <- input$R_window_size
+    inp$incidencePer <- input$incidencePer
     if (input$manual_y_scale) {
       inp$manual_max_incidence <- input$manual_max_incidence
     } else {

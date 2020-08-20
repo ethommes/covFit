@@ -69,7 +69,8 @@ base_input_list <- list(
   filetype = "png",
   post_turnover_up_to_present_TF = F,
   plot_R_and_mobility_TF = F,
-  manual_max_incidence = NA
+  manual_max_incidence = NA,
+  incidencePer = "raw"
 )
 
 # start_date <- as.Date("2020-01-22")
