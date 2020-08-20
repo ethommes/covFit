@@ -87,6 +87,8 @@ server <- function(input, output, session) {
     
     if (input$trial_sites_only) {
       df <- df_trial_sites
+    } else {
+      df <- df_master
     }
     inp$filter_to_trial_site_YN <- input$trial_sites_only
     inp$trial_site <- input$siteSelect

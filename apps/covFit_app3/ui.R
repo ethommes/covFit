@@ -4,7 +4,7 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       checkboxInput("trial_sites_only", "Restrict to trial sites", value=FALSE),
-      selectInput("countrySelect", "Country", choices=unique(df$Country_Region)),
+      selectInput("countrySelect", "Country", choices=unique(df_master$Country_Region)),
       selectInput("regionSelect", "Province/State", choices = NULL),
       selectInput("subregionSelect", "Subregion", choices = NULL),
       selectInput("siteSelect", "Site", choices = NULL),

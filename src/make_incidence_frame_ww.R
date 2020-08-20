@@ -28,14 +28,15 @@ make_incidence_frame_ww <- function(df, inp) {
     inp$Admin2 <- region_data$county[1]
   }
   
-  # Build incidence_frame, turning any NAs to zeros...
+  # Build incidence_frame, turning any NAs and Infs to zeros...
   tmp1 <- data.frame(
     "dates" = region_data$Date, 
     "cumu_cases" = region_data$Confirmed,
     "cumu_deaths" = region_data$Deaths,
     "population" = region_data$Population
   )
-  tmp1[is.na(tmp1)] <- 0
+  tmp1$population[is.na(tmp1$population)] <- 0
+  tmp1$population[is.infinite(tmp1$population)] <- 0
   
   # ...if we combined multiple regions--say, all Canadian provinces--we will have multiple entries
   # per date.  What we want is the sum across regions for each date.  Calculate this...

@@ -40,7 +40,6 @@ server <- function(input, output, session) {
     }
 
     # Pull out the data for the selected region:
-    
     inp <- make_incidence_frame_ww(df, inp)
     temp <- region_mobility_and_incidence_ww(inp)
     
