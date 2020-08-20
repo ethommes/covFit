@@ -68,6 +68,7 @@ server <- function(input, output, session) {
     inp$Country_Region <- input$countrySelect
     inp$Province_State <- req(input$regionSelect)
     inp$Admin2 <- req(input$subregionSelect)
+    inp$predict_data_start <- input$predict_data_start
     inp$predict_from_date <- input$predict_from_date
     inp$predict_date <- input$predict_date
     inp$R_window_size <- input$R_window_size

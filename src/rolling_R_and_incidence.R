@@ -1,5 +1,5 @@
 
-rolling_R_and_incidence <- function(incidence, predict_start_date, predict_end_date, onset_date, turnover_date, inputs) {
+rolling_R_and_incidence <- function(incidence, inputs) {
 
   with(inputs, {
     if (incidence$cumu_cases[nrow(incidence)]==0) {
@@ -27,14 +27,22 @@ rolling_R_and_incidence <- function(incidence, predict_start_date, predict_end_d
                                             max_turnover_date = as.Date("2020-05-01"),
                                             max_date_to_consider = as.Date("2020-06-01"))
     
-    # ALT: Remove all dates before onset date 
+    # Remove all dates before onset date 
     incidence <- incidence[incidence$dates >= onset_date,]
     # Create a subframe of df_rho from which to calculate the forecast.
     # If turnover_date = NA (i.e. we were unsuccessful in finding one), then
     # just set it to onset_date
     if (is.na(turnover_date)) {turnover_date <- onset_date}
     
-    incidence_sub <- incidence[incidence$dates <= predict_start_date & incidence$dates >= turnover_date,]
+    # If the start of the forecast window has been specified as earlier than the above, 
+    # use the specified value instead:
+    if (predict_data_start > turnover_date) {
+      window_start <- predict_data_start
+    } else {
+      window_start <- turnover_date
+    }
+    
+    incidence_sub <- incidence[incidence$dates <= predict_start_date & incidence$dates >= window_start,]
 
     df_rho <- smoothed_incidence_and_rho(incidence, R_window_size, rolling_mean_alignment)
     R_roll <- R0_SEIR(df_rho$rho_roll, sigma_SEIR, gamma_SEIR)
@@ -43,12 +51,25 @@ rolling_R_and_incidence <- function(incidence, predict_start_date, predict_end_d
     df_rho_sub <- smoothed_incidence_and_rho(incidence_sub, R_window_size, rolling_mean_alignment)
     R_roll_sub <- R0_SEIR(df_rho_sub$rho_roll, sigma_SEIR, gamma_SEIR)
     df_rho_sub <- data.frame(df_rho_sub, "R_roll" = R_roll_sub)
+    
+    
+    
 
     # Don't let the first date to predict be later than the most recent case data:
     if (predict_start_date > df_rho$dates[nrow(df_rho)]) {predict_start_date <- df_rho$dates[nrow(df_rho)]}
     
     # Create a date vector for the forecast:
+    
     df_rho_sub_non_NA <- subset(df_rho_sub, !is.na(df_rho_sub$log_cases_roll)) # strip off the NAs produced by rolling mean
+    
+    # Min, max incidence across df_rho_sub:
+    min_incidence <- exp(min(df_rho_sub_non_NA$log_cases_roll))
+    max_incidence <- exp(max(df_rho_sub_non_NA$log_cases_roll))
+    
+    # Mean rho across growth periods:
+    mean_rho_growth <- df_rho_sub_non_NA %>% subset(rho_roll > 0) %>% pull(rho_roll) %>% mean
+    mean_rho_decay <- df_rho_sub_non_NA %>% subset(rho_roll < 0) %>% pull(rho_roll) %>% mean
+
     if (nrow(df_rho_sub_non_NA > 0)) {
       predict_start_date_for_roll <- df_rho_sub_non_NA$dates[nrow(df_rho_sub_non_NA)] # forecast starts from last date after stripping off NAs
       dates_forecast <- seq(predict_start_date_for_roll, predict_end_date, by="day")
@@ -108,7 +129,9 @@ rolling_R_and_incidence <- function(incidence, predict_start_date, predict_end_d
         "R_min" = R_min,
         "R_max" = R_max,
         "cases_0" = exp(log_cases_0),
-        "forecast_start_date" = predict_start_date_for_roll)
+        "forecast_start_date" = predict_start_date_for_roll,
+        "min_incidence" = min_incidence,
+        "max_incidence" = max_incidence)
       } else { # if no valid result (specifically, if df_rho_sub_non_NA has zero rows)
         output_to_return <- list(
           "incidence" = incidence,
@@ -126,7 +149,9 @@ rolling_R_and_incidence <- function(incidence, predict_start_date, predict_end_d
           "R_min" = NA,
           "R_max" = NA,
           "cases_0" = NA,
-          "forecast_start_date" = NA)
+          "forecast_start_date" = NA,
+          "min_incidence" = NA,
+          "max_incidence" = NA)
         
       
     }
@@ -156,6 +181,8 @@ ERROR_rolling_R_and_incidence <- function(incidence) {
     "R_min" = NA,
     "R_max" = NA,
     "cases_0" = NA,
-    "forecast_start_date" = NA)
+    "forecast_start_date" = NA,
+    "min_incidence" = NA,
+    "max_incidence" = NA)
   return(output_to_return)
 }

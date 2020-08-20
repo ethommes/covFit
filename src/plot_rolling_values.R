@@ -76,7 +76,10 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
       labs(x="date", y=y_label) +
       theme(plot.title = element_text(margin = margin(t = 10, b = -20), size=11, hjust=0.5)) +
       scale_x_date(date_breaks = "months", date_labels = "%b") +
-      geom_vline(xintercept = rolling_list$turnover_date, linetype=3)
+      geom_vline(xintercept = rolling_list$turnover_date, linetype=3) +
+      geom_hline(yintercept = rolling_list$min_incidence*incScale, linetype=2) +
+      geom_hline(yintercept = rolling_list$max_incidence*incScale, linetype=2)
+  
     
     
     plot1 <- plot_base + theme(axis.title.x = element_blank(), axis.text.x = element_blank()) + 

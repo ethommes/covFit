@@ -52,10 +52,6 @@ region_mobility_and_incidence_ww <- function(inputs) {
     
     # New incidence + R + projection plot :
     rolling_list <- rolling_R_and_incidence(incidence =  incidence_frame_cfr_adj, 
-                                            predict_start_date = as.Date("2020-08-20"), 
-                                            predict_end_date =inputs$predict_date, 
-                                            onset_date = df_exp_portion$onset_date,
-                                            turnover_date = df_exp_portion$turnover_date,
                                             inputs = inputs)
     cumu_cases_at_turnover_raw <- incidence_frame$cumu_cases[incidence_frame$dates==rolling_list$turnover_date]
     cumu_cases_at_turnover_corrected <- incidence_frame_cfr_adj$cumu_cases[incidence_frame_cfr_adj$dates==rolling_list$turnover_date]

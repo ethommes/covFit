@@ -55,6 +55,7 @@ base_input_list <- list(
   mobility_window_half_width = 7, # rolling average window (days) for mobility data.  Misnomer; is now actually full width of window
   R_window_size = 14, # rolling average window for R
   most_recent_R_window = 30, #use this many of the most recent days when computing current R
+  predict_start_date = as.Date("2020-01-23"), # date from which to start using data for prediction
   predict_from_date = as.Date("2020-12-31"), # date from which we're predicting.  Allows checking what are prediction would have been in the past.  Any date >= the current date makes prediction go from the current date
   predict_date = as.Date("2020-09-01"), # Date to which we're projecting
   xlim = c(as.Date("2020-03-01"), as.Date("2020-05-01")),
