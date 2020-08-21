@@ -62,7 +62,6 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
                           "Post-turnover:\n",
                           "   R_eff = ", round(rolling_list$R_mid,2), "(", round(rolling_list$R_min,2), ", ", round(rolling_list$R_max,2),")\n"
     )
-    
     plot_base <- ggplot(data=rolling_list$incidence, aes(x=dates, y=cases*incScale)) + geom_point(size=1) +
       geom_point(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=cases*incScale), color="lightgreen", size=1) +
       geom_line(data=rolling_list$rolling_values, aes(x=dates, y = exp(log_cases_roll)*incScale)) +
@@ -70,9 +69,14 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
       # xlim(x_min, x_max) +
       geom_line(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=exp(log_cases_roll)*incScale),color="green") +
       geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale), color="green") +
+      geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_min)*incScale), linetype = 2, color = "red", size=1) +
+      geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_max)*incScale), linetype = 2, color = "red", size=1) +
+      # geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
+      #                                             ymin=exp(log_cases_min)*incScale, 
+      #                                             ymax=exp(log_cases_max)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
       geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
-                                                  ymin=exp(log_cases_min)*incScale, 
-                                                  ymax=exp(log_cases_max)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
+                                                  ymin=exp(log_cases_SD_lower)*incScale, 
+                                                  ymax=exp(log_cases_SD_upper)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
       labs(x="date", y=y_label) +
       theme(plot.title = element_text(margin = margin(t = 10, b = -20), size=11, hjust=0.5)) +
       scale_x_date(date_breaks = "months", date_labels = "%b") +
