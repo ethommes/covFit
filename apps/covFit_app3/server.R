@@ -94,12 +94,16 @@ server <- function(input, output, session) {
     inp$filter_to_trial_site_YN <- input$trial_sites_only
     inp$trial_site <- input$siteSelect
     inp <- make_incidence_frame_ww(df, inp)
-    temp <- region_mobility_and_incidence_ww(inp)
+    region_mobility_and_incidence_ww(inp)$plot
+    # pdf(region_mobility_and_incidence_ww(inp)$plot, width=5, height=5)
     
-    # plot_to_render <- plot.new()
+    # temp <- region_mobility_and_incidence_ww(inp)
+
+    # plot_to_render <- temp$plot
+    # pdf(plot_to_render, width=5, height=5)
+    
+    
     # plot_to_render
-    plot_to_render <- temp$plot
-    plot_to_render
   })
 }
 

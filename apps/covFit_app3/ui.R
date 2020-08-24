@@ -12,19 +12,20 @@ ui <- fluidPage(
       dateInput("predict_from_date", "...to", value = today()),
       dateInput("predict_date", "Forecast up to:", value=as.Date(today() + 30)),
       sliderInput("R_window_size", "rolling average window (days)", min=3, max=30, value = 14),
-      checkboxInput("apply_CFR_correction", "Apply CFR correction", value=FALSE),
+      checkboxInput("apply_CFR_correction", "Apply CFR correction", value=TRUE),
       numericInput("CFR", "CFR to enforce (10 day lag)", value = 0.004, min=0, max=0.1, step=0.001),
       radioButtons("incidencePer", "Show incidence as:", choices = c("per day" = "raw", 
                                                                      "per day per 1k" = "per1k", 
                                                                      "per day per 10k" = "per10k", 
-                                                                     "per day per 100k" = "per100k")
+                                                                     "per day per 100k" = "per100k"),
+                   selected = "per100k"
       ),
       checkboxInput("manual_y_scale", "Manual incidence (y) axis scaling", value=FALSE),
       numericInput("manual_max_incidence", "Max incidence to plot", value=100, min=1, max=1e4, step=1),
       width=2
     ),
     mainPanel(
-      plotOutput("Plot")
+      plotOutput("Plot", height="800px")
     )
   )
   

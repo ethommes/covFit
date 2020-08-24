@@ -63,7 +63,7 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
                           "   R_eff = ", round(rolling_list$R_mid,2), "(", round(rolling_list$R_min,2), ", ", round(rolling_list$R_max,2),")\n"
     )
     plot_base <- ggplot(data=rolling_list$incidence, aes(x=dates, y=cases*incScale)) + geom_point(size=1) +
-      geom_point(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=cases*incScale), color="lightgreen", size=1) +
+      geom_point(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=cases*incScale), color="green", size=1) +
       geom_line(data=rolling_list$rolling_values, aes(x=dates, y = exp(log_cases_roll)*incScale)) +
       # xlim(min(rolling_list$incidence$dates), max(rolling_list$forecast$dates)) +
       # xlim(x_min, x_max) +
@@ -74,15 +74,18 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
       # geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
       #                                             ymin=exp(log_cases_min)*incScale, 
       #                                             ymax=exp(log_cases_max)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
+      # geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
+      #                                             ymin=exp(log_cases_SD_lower)*incScale, 
+      #                                             ymax=exp(log_cases_SD_upper)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
       geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
-                                                  ymin=exp(log_cases_SD_lower)*incScale, 
-                                                  ymax=exp(log_cases_SD_upper)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
+                                                  ymin=exp(log_cases_growth)*incScale, 
+                                                  ymax=exp(log_cases_decay)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
       labs(x="date", y=y_label) +
       theme(plot.title = element_text(margin = margin(t = 10, b = -20), size=11, hjust=0.5)) +
       scale_x_date(date_breaks = "months", date_labels = "%b") +
-      geom_vline(xintercept = rolling_list$turnover_date, linetype=3) +
-      geom_hline(yintercept = rolling_list$min_incidence*incScale, linetype=2) +
-      geom_hline(yintercept = rolling_list$max_incidence*incScale, linetype=2)
+      geom_vline(xintercept = rolling_list$turnover_date, linetype=2) +
+      geom_hline(yintercept = rolling_list$min_incidence*incScale, linetype=2, color = "red") +
+      geom_hline(yintercept = rolling_list$max_incidence*incScale, linetype=2, color = "red")
   
     
     
@@ -106,11 +109,11 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
     
     
     plot_R <- ggplot(data=rolling_list$rolling_values, aes(x=dates, y=R_roll)) + geom_line() +
-      geom_hline(yintercept = 1, linetype=3) + 
+      geom_hline(yintercept = 1, linetype=1) + 
       labs(x="date", y="effective R") + 
       # xlim(x_min, x_max) +
       scale_x_date(date_breaks = "months", date_labels = "%b") +
-      geom_vline(xintercept = rolling_list$turnover_date, linetype=3) +
+      geom_vline(xintercept = rolling_list$turnover_date, linetype=2) +
       coord_cartesian(xlim=c(x_min, x_max)) +
       annotate_textp(x=1.0, y=1.0, label=text_plot_2, size=7.5)
     
