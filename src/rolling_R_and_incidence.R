@@ -87,6 +87,7 @@ rolling_R_and_incidence <- function(incidence, inputs) {
       rho_roll_negative <- rho_roll_for_forecast %>% subset(rho_roll_for_forecast < 0)
       mean_rho_growth <- mean(rho_roll_positive)
       mean_rho_decay <- mean(rho_roll_negative)
+      last_rho <- rho_roll_for_forecast[length(rho_roll_for_forecast)]
 
       
       # mean_rho_growth <- df_rho_sub_non_NA %>% subset(rho_roll > 0) %>% pull(rho_roll) %>% mean
@@ -97,6 +98,7 @@ rolling_R_and_incidence <- function(incidence, inputs) {
       R_mid <- R0_SEIR(rho_mid, sigma_SEIR, gamma_SEIR)
       R_min <- R0_SEIR(rho_min, sigma_SEIR, gamma_SEIR)
       R_max <- R0_SEIR(rho_max, sigma_SEIR, gamma_SEIR)
+      R_last <- R0_SEIR(last_rho, sigma_SEIR, gamma_SEIR)
       
       # The forecasts:
       # log_cases_forecast_mid <- as.numeric(log_cases_0 + rho_mid*(dates_forecast - predict_start_date))
@@ -107,6 +109,7 @@ rolling_R_and_incidence <- function(incidence, inputs) {
       log_cases_SD_upper <- as.numeric(log_cases_0 + (rho_mid + rho_SD)*(dates_forecast - predict_start_date_for_roll))
       log_cases_growth <- as.numeric(log_cases_0 + mean_rho_growth*(dates_forecast - predict_start_date_for_roll))
       log_cases_decay <- as.numeric(log_cases_0 + mean_rho_decay*(dates_forecast - predict_start_date_for_roll))
+      log_cases_last_rho <- as.numeric(log_cases_0 + last_rho*(dates_forecast - predict_start_date_for_roll))
       
       
       forecast_frame <- data.frame("dates" = dates_forecast,
@@ -116,7 +119,8 @@ rolling_R_and_incidence <- function(incidence, inputs) {
                                    "log_cases_SD_lower" = log_cases_SD_lower,
                                    "log_cases_SD_upper" = log_cases_SD_upper,
                                    "log_cases_growth" = log_cases_growth,
-                                   "log_cases_decay" = log_cases_decay)
+                                   "log_cases_decay" = log_cases_decay,
+                                   "log_cases_last_rho" = log_cases_last_rho)
       
       # Estimate R0, as the maximum R between onset and turnover:
       df_rho_0 <- df_rho %>% subset(dates <= turnover_date)
@@ -142,6 +146,7 @@ rolling_R_and_incidence <- function(incidence, inputs) {
         "R_mid" = R_mid,
         "R_min" = R_min,
         "R_max" = R_max,
+        "R_last" = R_last,
         "cases_0" = exp(log_cases_0),
         "forecast_start_date" = predict_start_date_for_roll,
         "min_incidence" = min_incidence,

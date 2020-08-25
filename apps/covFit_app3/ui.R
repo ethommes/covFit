@@ -22,6 +22,7 @@ ui <- fluidPage(
       ),
       checkboxInput("manual_y_scale", "Manual incidence (y) axis scaling", value=FALSE),
       numericInput("manual_max_incidence", "Max incidence to plot", value=100, min=1, max=1e4, step=1),
+      downloadButton('downloadPlot', 'Download Plot'),
       width=2
     ),
     mainPanel(

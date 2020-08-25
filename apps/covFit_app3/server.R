@@ -63,7 +63,7 @@ server <- function(input, output, session) {
     updateSelectInput(session = session, inputId = "siteSelect", choices = sites_vector())
   })
   
-  output$Plot <- renderPlot({
+  plotInput <- function() {
     inp <- base_input_list
     inp$Country_Region <- input$countrySelect
     inp$Province_State <- req(input$regionSelect)
@@ -83,7 +83,7 @@ server <- function(input, output, session) {
     } else {
       inp$CFR <- NA
     }
-
+    
     # Pull out the data for the selected region:
     
     if (input$trial_sites_only) {
@@ -94,16 +94,68 @@ server <- function(input, output, session) {
     inp$filter_to_trial_site_YN <- input$trial_sites_only
     inp$trial_site <- input$siteSelect
     inp <- make_incidence_frame_ww(df, inp)
-    region_mobility_and_incidence_ww(inp)$plot
-    # pdf(region_mobility_and_incidence_ww(inp)$plot, width=5, height=5)
+    # plot_to_render <- region_mobility_and_incidence_ww(inp)$plot
+    plotInput <- region_mobility_and_incidence_ww(inp)$plot
     
-    # temp <- region_mobility_and_incidence_ww(inp)
-
-    # plot_to_render <- temp$plot
-    # pdf(plot_to_render, width=5, height=5)
-    
-    
-    # plot_to_render
+  }
+  
+  output$Plot <- renderPlot({
+    print(plotInput())
   })
+  
+  # output$Plot <- renderPlot({
+  #   inp <- base_input_list
+  #   inp$Country_Region <- input$countrySelect
+  #   inp$Province_State <- req(input$regionSelect)
+  #   inp$Admin2 <- req(input$subregionSelect)
+  #   inp$predict_data_start <- input$predict_data_start
+  #   inp$predict_from_date <- input$predict_from_date
+  #   inp$predict_date <- input$predict_date
+  #   inp$R_window_size <- input$R_window_size
+  #   inp$incidencePer <- input$incidencePer
+  #   if (input$manual_y_scale) {
+  #     inp$manual_max_incidence <- input$manual_max_incidence
+  #   } else {
+  #     inp$manual_max_incidence <- NA
+  #   }
+  #   if (input$apply_CFR_correction) {
+  #     inp$CFR <- input$CFR
+  #   } else {
+  #     inp$CFR <- NA
+  #   }
+  # 
+  #   # Pull out the data for the selected region:
+  #   
+  #   if (input$trial_sites_only) {
+  #     df <- df_trial_sites
+  #   } else {
+  #     df <- df_master
+  #   }
+  #   inp$filter_to_trial_site_YN <- input$trial_sites_only
+  #   inp$trial_site <- input$siteSelect
+  #   inp <- make_incidence_frame_ww(df, inp)
+  #   plot_to_render <- region_mobility_and_incidence_ww(inp)$plot
+  #   print(plot_to_render)
+  #   
+  # })
+  
+  # output$downloadPlot <- downloadHandler(
+  #   filename = "Shinyplot.png",
+  #   content = function(file) {
+  #     png(file)
+  #     print(plotInput())
+  #     dev.off()
+  #   }
+  # )
+  
+  output$downloadPlot <- downloadHandler(
+    # filename = "Shinyplot.png",
+    filename = function() { paste0(input$subregionSelect, " ", input$regionSelect, " ", input$countrySelect, ".png") },
+    content = function(file) {
+      # ggsave(file, plotInput(), height=5, width=5)
+      ggsave(file, plotInput())
+      
+    }
+  )
 }
 

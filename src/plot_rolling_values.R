@@ -63,12 +63,13 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
                           "   R_eff = ", round(rolling_list$R_mid,2), "(", round(rolling_list$R_min,2), ", ", round(rolling_list$R_max,2),")\n"
     )
     plot_base <- ggplot(data=rolling_list$incidence, aes(x=dates, y=cases*incScale)) + geom_point(size=1) +
-      geom_point(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=cases*incScale), color="green", size=1) +
+      geom_point(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=cases*incScale), color="blue", size=1) +
       geom_line(data=rolling_list$rolling_values, aes(x=dates, y = exp(log_cases_roll)*incScale)) +
       # xlim(min(rolling_list$incidence$dates), max(rolling_list$forecast$dates)) +
       # xlim(x_min, x_max) +
-      geom_line(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=exp(log_cases_roll)*incScale),color="green") +
-      geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale), color="green") +
+      geom_line(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=exp(log_cases_roll)*incScale),color="blue") +
+      # geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale), color="green") +
+      geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_last_rho)*incScale), color="blue") +
       geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_min)*incScale), linetype = 2, color = "red", size=1) +
       geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_max)*incScale), linetype = 2, color = "red", size=1) +
       # geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
@@ -109,6 +110,8 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
     
     
     plot_R <- ggplot(data=rolling_list$rolling_values, aes(x=dates, y=R_roll)) + geom_line() +
+      geom_line(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=R_roll), color = "blue") +
+      geom_hline(yintercept = rolling_list$R_last, linetype = 1, color = "blue") +
       geom_hline(yintercept = 1, linetype=1) + 
       labs(x="date", y="effective R") + 
       # xlim(x_min, x_max) +
