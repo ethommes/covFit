@@ -73,6 +73,9 @@ server <- function(input, output, session) {
     inp$predict_date <- input$predict_date
     inp$R_window_size <- input$R_window_size
     inp$incidencePer <- input$incidencePer
+    inp$rho_from_incidence_y_offset <- input$y_offset
+    inp$rho_from_incidence_y_scale <- input$y_scale
+    inp$rho_from_incidence_t_lag <- input$t_lag
     if (input$manual_y_scale) {
       inp$manual_max_incidence <- input$manual_max_incidence
     } else {
@@ -94,7 +97,12 @@ server <- function(input, output, session) {
     inp$filter_to_trial_site_YN <- input$trial_sites_only
     inp$trial_site <- input$siteSelect
     inp <- make_incidence_frame_ww(df, inp)
-    # plot_to_render <- region_mobility_and_incidence_ww(inp)$plot
+    # google_mobi <- read_google_mobility_v3(google_mobility,
+    #               mobility_country = input$countrySelect, 
+    #               mobility_region = input$regionSelect, 
+    #               mobility_subregion = input$subregionSelect,
+    #               mobility_window_size = input$R_window_size,
+    #               alignment = rolling_mean_alignment)
     plotInput <- region_mobility_and_incidence_ww(inp)$plot
     
   }
@@ -153,7 +161,7 @@ server <- function(input, output, session) {
     filename = function() { paste0(input$subregionSelect, " ", input$regionSelect, " ", input$countrySelect, ".png") },
     content = function(file) {
       # ggsave(file, plotInput(), height=5, width=5)
-      ggsave(file, plotInput())
+      ggsave(file, plotInput(), height=5, width=7)
       
     }
   )

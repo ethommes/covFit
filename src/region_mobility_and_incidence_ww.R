@@ -35,9 +35,12 @@ region_mobility_and_incidence_ww <- function(inputs) {
       cfr_correction_factor <- 1
     }
     inputs$cfr_correction_factor <- cfr_correction_factor
-    
+
     if (plot_R_and_mobility_TF) {
-      google_mobi <- read_google_mobility_v2(google_mobility,
+      mobility_country <- Country_Region
+      mobility_region <- Province_State
+      mobility_subregion <- Admin2
+      google_mobi <- read_google_mobility_v3(google_mobility,
                                              mobility_country = mobility_country, 
                                              mobility_region = mobility_region, 
                                              mobility_subregion = mobility_subregion,
@@ -48,8 +51,6 @@ region_mobility_and_incidence_ww <- function(inputs) {
                                 "residential_min"=NA,
                                 "residential_max"=NA)
     }
-    
-    
     # New incidence + R + projection plot :
     rolling_list <- rolling_R_and_incidence(incidence =  incidence_frame_cfr_adj, 
                                             inputs = inputs)

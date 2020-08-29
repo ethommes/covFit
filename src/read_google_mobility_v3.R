@@ -1,11 +1,18 @@
 
-read_google_mobility_v2 <- function(google_mobility,
+read_google_mobility_v3 <- function(google_mobility,
                                 mobility_country, 
                                 mobility_region, 
                                 mobility_subregion,
                                 mobility_window_size,
                                 alignment) {
-  browser()
+  # Make any needed changes to names, since the JHU naming conventions differ from the Google ones in some places:
+  if (mobility_country == "US") {mobility_country <- "United States"}
+  if (mobility_country == "Korea, South") {mobility_country <- "South Korea"}
+  
+  # Deal with selections of "ALL":
+  if (mobility_region == "ALL") {mobility_region <- ""}
+  if (mobility_subregion == "ALL") {mobility_subregion <- ""}
+  
   df_google <- google_mobility[google_mobility$country_region == mobility_country &
                                  google_mobility$sub_region_1 == mobility_region &
                                  google_mobility$sub_region_2 == mobility_subregion,]

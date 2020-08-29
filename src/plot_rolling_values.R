@@ -64,23 +64,26 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
     )
     plot_base <- ggplot(data=rolling_list$incidence, aes(x=dates, y=cases*incScale)) + geom_point(size=1) +
       geom_point(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=cases*incScale), color="blue", size=1) +
-      geom_line(data=rolling_list$rolling_values, aes(x=dates, y = exp(log_cases_roll)*incScale)) +
+      
       # xlim(min(rolling_list$incidence$dates), max(rolling_list$forecast$dates)) +
       # xlim(x_min, x_max) +
-      geom_line(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=exp(log_cases_roll)*incScale),color="blue") +
       # geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale), color="green") +
-      geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_last_rho)*incScale), color="blue") +
       geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_min)*incScale), linetype = 2, color = "red", size=1) +
       geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_max)*incScale), linetype = 2, color = "red", size=1) +
-      # geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
-      #                                             ymin=exp(log_cases_min)*incScale, 
-      #                                             ymax=exp(log_cases_max)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
+      geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale,
+                                                  ymin=exp(log_cases_min)*incScale,
+                                                  ymax=exp(log_cases_max)*incScale), fill="blue", alpha=0.2) +
+      geom_line(data=rolling_list$rolling_values, aes(x=dates, y = exp(log_cases_roll)*incScale), size = 1) +
+      geom_line(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=exp(log_cases_roll)*incScale),color="blue", size = 1) +
+      geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_last_rho)*incScale), color="blue", size = 1, linetype = 2) +
+      geom_line(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale), color="blue", size = 1) +
+      
       # geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
       #                                             ymin=exp(log_cases_SD_lower)*incScale, 
       #                                             ymax=exp(log_cases_SD_upper)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
-      geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
-                                                  ymin=exp(log_cases_growth)*incScale, 
-                                                  ymax=exp(log_cases_decay)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
+      # geom_ribbon(data=rolling_list$forecast, aes(x=dates, y=exp(log_cases_mid)*incScale, 
+      #                                             ymin=exp(log_cases_growth)*incScale, 
+      #                                             ymax=exp(log_cases_decay)*incScale), fill="green", alpha=0.2, color="green", linetype=3) +
       labs(x="date", y=y_label) +
       theme(plot.title = element_text(margin = margin(t = 10, b = -20), size=11, hjust=0.5)) +
       scale_x_date(date_breaks = "months", date_labels = "%b") +
@@ -108,10 +111,14 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
       theme(axis.title.x = element_blank(), axis.text.x = element_blank()) + # New
       annotate_textp(x=0.95, y=1.0, label="LOG PLOT", size=8.5)
     
-    
+    R_mid_for_R_plot <- rolling_list$R_mid
+    R_last_for_R_plot <- rolling_list$R_last
     plot_R <- ggplot(data=rolling_list$rolling_values, aes(x=dates, y=R_roll)) + geom_line() +
-      geom_line(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=R_roll), color = "blue") +
-      geom_hline(yintercept = rolling_list$R_last, linetype = 1, color = "blue") +
+      geom_line(data=rolling_list$rolling_values_for_forecast, aes(x=dates, y=R_roll), color = "blue", size = 1) +
+      geom_line(data=rolling_list$forecast, aes(x=dates, y=R_mid_for_R_plot), color = "blue", size = 1) +
+      geom_line(data=rolling_list$forecast, aes(x=dates, y=R_last_for_R_plot), color = "blue", linetype = 2, size = 1) +
+      # geom_line(data=rolling_list$rolling_values, aes(x=dates, y=rho_model), color = "red") +
+      # geom_hline(yintercept = rolling_list$R_last, linetype = 1, color = "blue") +
       geom_hline(yintercept = 1, linetype=1) + 
       labs(x="date", y="effective R") + 
       # xlim(x_min, x_max) +
@@ -120,15 +127,25 @@ plot_rolling_values <- function(rolling_list, title, CFR_text, inputs) {
       coord_cartesian(xlim=c(x_min, x_max)) +
       annotate_textp(x=1.0, y=1.0, label=text_plot_2, size=7.5)
     
+    plot_deaths <- ggplot(data = rolling_list$rolling_values, aes(x = dates, y = deaths)) + geom_point() +
+      geom_line(data=rolling_list$rolling_values, aes(x = dates, y = exp(log_deaths_roll))) +
+      scale_x_date(date_breaks = "months", date_labels = "%b") +
+      coord_cartesian(xlim=c(x_min, x_max)) +
+      theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+      
     
-    # plot3 <- ggarrange(plot1, plot2, nrow=2, ncol=1, align="v")
+    
     plot3 <- ggarrange(plot1, plot2, plot_R, nrow=3, ncol=1, align="v")
+    # plot3 <- ggarrange(plot1, plot2, plot_deaths, plot_R, nrow=4, ncol=1, align="v")
+    
     plot3 <- annotate_figure(plot3, top=title)
     
     if (inputs$plot_to_screen_TF) {print(plot3)}
     
     if (inputs$plot_TF) {
-      filename <- paste0(inputs$Country.Region,"_",inputs$Province.State,"_",inputs$Admin2, inputs$predict_from_date, "_exp_fit.",inputs$filetype)
+      # filename <- paste0(inputs$Country.Region,"_",inputs$Province.State,"_",inputs$Admin2, inputs$predict_from_date, "_exp_fit.",inputs$filetype)
+      
+      filename <- paste0(inputs$Country_Region,"_",inputs$Province_State,"_",inputs$Admin2, inputs$predict_from_date, "_exp_fit.",inputs$filetype)
       # ggsave(filename=filename, path=inputs$pathname_figs, plot3)
       ggsave(filename=filename, path=inputs$pathname_figs, plot3)
     }

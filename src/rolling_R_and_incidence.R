@@ -48,9 +48,14 @@ rolling_R_and_incidence <- function(incidence, inputs) {
     R_roll <- R0_SEIR(df_rho$rho_roll, sigma_SEIR, gamma_SEIR)
     df_rho <- data.frame(df_rho, "R_roll" = R_roll)
     
+    # EXPERIMENTAL: try to construct an approximation of rho as a function of incidence
+    # df_rho <- rho_from_incidence(df_rho, inputs)
+    
     df_rho_sub <- smoothed_incidence_and_rho(incidence_sub, R_window_size, rolling_mean_alignment)
     R_roll_sub <- R0_SEIR(df_rho_sub$rho_roll, sigma_SEIR, gamma_SEIR)
     df_rho_sub <- data.frame(df_rho_sub, "R_roll" = R_roll_sub)
+    
+   
     
     
     
